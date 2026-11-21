@@ -1,0 +1,168 @@
+[
+  {
+    "panel": "copy",
+    "at": 55,
+    "plain": 150860,
+    "candidate": 150078,
+    "replay": [
+      150860
+    ],
+    "probabilities": [
+      {
+        "id": 150860,
+        "token": " They",
+        "bytes": [
+          32,
+          84,
+          104,
+          101,
+          121
+        ],
+        "logprob": -1.0616016387939453,
+        "top_logprobs": [
+          {
+            "id": 150860,
+            "token": " They",
+            "bytes": [
+              32,
+              84,
+              104,
+              101,
+              121
+            ],
+            "logprob": -1.0616016387939453
+          },
+          {
+            "id": 150078,
+            "token": " This",
+            "bytes": [
+              32,
+              84,
+              104,
+              105,
+              115
+            ],
+            "logprob": -1.127298355102539
+          },
+          {
+            "id": 149917,
+            "token": " The",
+            "bytes": [
+              32,
+              84,
+              104,
+              101
+            ],
+            "logprob": -1.7335071563720703
+          },
+          {
+            "id": 150197,
+            "token": " We",
+            "bytes": [
+              32,
+              87,
+              101
+            ],
+            "logprob": -3.485647201538086
+          },
+          {
+            "id": 196980,
+            "token": " \"",
+            "bytes": [
+              32,
+              34
+            ],
+            "logprob": -3.7859535217285156
+          }
+        ]
+      }
+    ],
+    "timings": {
+      "cache_n": 0,
+      "prompt_n": 2103,
+      "prompt_ms": 12533.053,
+      "prompt_per_token_ms": 5.959606752258678,
+      "prompt_per_second": 167.7963062950424,
+      "predicted_n": 1,
+      "predicted_ms": 0.001,
+      "predicted_per_token_ms": 0.0,
+      "predicted_per_second": 0.0
+    }
+  },
+  {
+    "panel": "fresh",
+    "at": 98,
+    "plain": 8,
+    "candidate": 30,
+    "replay": [
+      30
+    ],
+    "probabilities": [
+      {
+        "id": 30,
+        "token": "?",
+        "bytes": [
+          63
+        ],
+        "logprob": -0.6969141364097595,
+        "top_logprobs": [
+          {
+            "id": 30,
+            "token": "?",
+            "bytes": [
+              63
+            ],
+            "logprob": -0.6969141364097595
+          },
+          {
+            "id": 8,
+            "token": ")",
+            "bytes": [
+              41
+            ],
+            "logprob": -0.7344756126403809
+          },
+          {
+            "id": 150220,
+            "token": " \u2014",
+            "bytes": [
+              32,
+              226,
+              128,
+              148
+            ],
+            "logprob": -4.5749735832214355
+          },
+          {
+            "id": 11,
+            "token": ",",
+            "bytes": [
+              44
+            ],
+            "logprob": -5.385148525238037
+          },
+          {
+            "id": 196990,
+            "token": " /",
+            "bytes": [
+              32,
+              47
+            ],
+            "logprob": -6.326280117034912
+          }
+        ]
+      }
+    ],
+    "timings": {
+      "cache_n": 0,
+      "prompt_n": 2146,
+      "prompt_ms": 12726.61,
+      "prompt_per_token_ms": 5.930386766076421,
+      "prompt_per_second": 168.62306615823064,
+      "predicted_n": 1,
+      "predicted_ms": 0.001,
+      "predicted_per_token_ms": 0.0,
+      "predicted_per_second": 0.0
+    }
+  }
+]

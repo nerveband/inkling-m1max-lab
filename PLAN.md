@@ -77,3 +77,20 @@ The same 34-ID ring-buffer prompt gave different greedy reasoning under native o
 In the six native fixed-depth trials, median HTTP readiness was 3.28 s and the first unrelated request reported a median 3.36 s of lazy model loading. The representative coding task used 218 generated IDs over five calls. Its first call consumed 1,432 input IDs with zero cached. Follow-ups reused 1,431, 1,491, 1,567 and 1,648 input IDs in one scored run. Median client first-response TTFT was 5.417 s. Pooled warm follow-up TTFT was 1.496 s, down from 1.751 s in the native plain control but above the GGUF plain control's 0.894 s. The native release wins the total correct-task time despite this cross-engine follow-up tradeoff. The controlled fixed arm had a median peak process RSS of 17.03 GiB and device-wide GPU memory of 20.10 GiB. Both occupy unified memory and should not be added.
 
 On the native 64K two-slot configuration the unmodified registry lab passed load, chat, reasoning, tools, context and speed. Its 45,470-token context probe returned exactly 58213 in 246.1 s, yielding the registry’s end-to-end prefill estimate of 185 tok/s. Its separate story prompt delivered 611 tokenizer-counted IDs in the first 30 s (20.4 tok/s), with 1,865 total tokens over 108.1 s. The recipe, launch and raw proof bind the exact profile and weights. The six-gate score uses its own natural-ended prompts and temperature.
+
+All 12 scored native 2K/8K raw completions reported zero cached input IDs. Subtracting the native verification window from HTTP wall time gives an effective prefill estimate of 270.18 tok/s at 2K and 266.35 at 8K. That interval includes request handling and first-token work. The endpoint’s text callback delivered only at completion, so the real client wait for visible text covers both prefill and generation on this raw-completions route. Pi’s chat-stream TTFT is measured independently.
+
+## Direct-server controls
+
+Exactly 2,048 and 8,192 input IDs, 256 output IDs requested, one warm-up and six scored requests per length per leg. All 14 input hashes per GGUF leg matched the corresponding native oMLX panel, including both warm-ups. Each workload contributed three scored samples per length. The columns are median native decode rates.
+
+| Length and task | Plain A | Depth 6 | Plain C | Accepted / proposed at depth 6 | Full output IDs matched both controls |
+|---|---:|---:|---:|---:|---:|
+| 2K copy | 18.96 | 33.98 | 19.31 | 646 / 702 | 3/3 |
+| 2K fresh code | 19.32 | 16.17 | 18.84 | 530 / 1,400 | 2/3 |
+| 8K copy | 18.43 | 32.08 | 18.88 | 654 / 654 | 3/3 |
+| 8K fresh code | 18.71 | 11.36 | 18.85 | 452 / 1,857 | 2/3 |
+
+Median plain prefill was about 172 tok/s at 2K and 149 at 8K. Depth 6 reached about 169 and 147. All three legs had zero reused prompt IDs on the scored raw requests. See raw/direct-comparison.json for min, median, max, TTFT, wall time, output lengths and acceptance. The direct fresh-code budget can cut off an implementation. These rates measure token generation, with coding correctness scored through the separate Pi tool fixtures.
+
+In the separate verbose GGUF depth-6 profile, the draft generator took 1,038.7 ms for 218/218 accepted copy proposals and 2,362.6 ms for 170/500 accepted fresh-code proposals. The remaining decode interval includes target verification and scheduling. The backend does not separate those two costs on this build. Replaying the exact free-reasoning prefix at the original copy divergence (ID index 55) returned the plain token in both new processes, with a 0.0657 log-probability gap. At the fresh-code split (index 98), both replays returned the original speculative token, with a 0.0376 gap. These are different evaluation paths and close top-two choices. The evidence does not isolate rollback as the cause.

@@ -1,0 +1,22 @@
+[
+  {
+    "kind": "copy",
+    "emitted": 256,
+    "accepted": 218,
+    "proposed": 218,
+    "draft_generate_ms": 1038.734,
+    "decode_ms": 7489.992,
+    "remaining_decode_ms": 6451.258,
+    "detail": "#calls(b,g,a) =    1     37     37, #gen drafts =     37, #acc drafts =    37, #gen tokens =    218, #acc tokens =   218, #mean acc len = 6.89, #acc rate/pos = (1.000, 1.000, 0.973, 0.973, 0.973, 0.973), dur(b,g,a) = 0.001, 1038.734, 0.014 ms"
+  },
+  {
+    "kind": "fresh",
+    "emitted": 256,
+    "accepted": 170,
+    "proposed": 500,
+    "draft_generate_ms": 2362.565,
+    "decode_ms": 17304.23,
+    "remaining_decode_ms": 14941.665,
+    "detail": "#calls(b,g,a) =    2    122    122, #gen drafts =    122, #acc drafts =   100, #gen tokens =    718, #acc tokens =   388, #mean acc len = 4.18, #acc rate/pos = (0.820, 0.664, 0.533, 0.426, 0.393, 0.344), dur(b,g,a) = 0.002, 3401.299, 0.037 ms"
+  }
+]
