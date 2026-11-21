@@ -38,6 +38,7 @@ def main():
     parser.add_argument('--cache',required=True,type=Path)
     parser.add_argument('--context',type=int,default=32768)
     parser.add_argument('--depth',type=int,default=3)
+    parser.add_argument('--slots',type=int,choices=(1,2),default=1)
     args=parser.parse_args()
     weights,state,cache=(p.expanduser().resolve() for p in (args.weights,args.state,args.cache))
     if not (weights/'mtp.safetensors').is_file():
@@ -61,7 +62,7 @@ def main():
         resources=contents/'Resources';py=resources/'Python'
         modules=os.pathsep.join(map(str,(resources,py/'framework-mlx-base/lib/python3.11/site-packages')))
         environment=dict(os.environ,PYTHONPATH=modules,HF_HUB_OFFLINE='1',HF_HOME=str(cache/'hub'),PYTHONDONTWRITEBYTECODE='1')
-        command=[str(py/'cpython-3.11/bin/python3.11'),'-m','omlx.cli','serve','--base-path',str(state),'--model-dir',str(models),'--host','127.0.0.1','--port','18089','--max-concurrent-requests','1','--headless','--paged-ssd-cache-dir',str(cache/'kv'),'--paged-ssd-cache-max-size','2GB','--hot-cache-max-size','1GB']
+        command=[str(py/'cpython-3.11/bin/python3.11'),'-m','omlx.cli','serve','--base-path',str(state),'--model-dir',str(models),'--host','127.0.0.1','--port','18089','--max-concurrent-requests',str(args.slots),'--headless','--paged-ssd-cache-dir',str(cache/'kv'),'--paged-ssd-cache-max-size','2GB','--hot-cache-max-size','1GB']
         with subprocess.Popen(command,env=environment,start_new_session=True) as server:
             def stop(*_):
                 if server.poll() is None:server.terminate()

@@ -32,6 +32,8 @@ cp configs/pi-direct.json "$PI_CODING_AGENT_DIR/models.json"
 pi --offline --provider inkling-local --model inkling --thinking off
 ```
 
+The 65,536-token qualification used two configured request slots and one active request. To reproduce it, use `--context 65536 --slots 2` in the foreground command and copy `configs/pi-direct-64k.json` as the disposable agent's `models.json`. At fixed depth 3, the exact ordered retrieval test submitted 31,954 and 64,717 input IDs and reserved 768 output IDs. Pi still used 512 IDs per response. The benchmark and the registry tested one active stream.
+
 ## GGUF controls
 
 Download both top-level GGUF files from [the Unsloth pinned revision](https://huggingface.co/unsloth/Inkling-2-Mini-GGUF/tree/ae9327c5fbc7333116ba32eee78bb5d2bbefae4f). Use the pinned [Apple Silicon runtime](https://github.com/unslothai/llama.cpp/releases/tag/b12588-mix-c0c3de8). Target and draft checksums are in PLAN.md. Set LLAMA_SERVER to the extracted binary. The plain and depth-6 launches differ only by the draft flags.
