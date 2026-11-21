@@ -26,6 +26,7 @@ def panel(length,kind,rep):
     end='Repeat the following code exactly, starting from compute_0. Write 40 functions.\n'+code[:750] if kind=='copy' else 'Implement a Python ring buffer class with capacity validation, iteration, resizing and unit tests. Write the complete implementation.\n'
     messages=[{'role':'user','content':end}]
     rendered=post('/apply-template',{'messages':messages})['prompt']
+    if os.environ.get('BENCH_VISIBLE')=='1': rendered += '<|message_model|><|content_text|>'
     tail=tokens(rendered)
     pad=tokens(text); k=length-len(prefix)-len(tail)
     assert k>0
@@ -36,7 +37,7 @@ def run(out,length,n,count):
         for rep in range(-1,count):
             kind='copy' if rep%2==0 else 'fresh'
             res=request(panel(length,kind,rep),n)
-            res.update(warmup=rep==-1,kind=kind,rep=rep)
+            res.update(warmup=rep==-1,kind=kind,rep=rep,visible_prefix=os.environ.get('BENCH_VISIBLE')=='1')
             print(json.dumps(res),file=f,flush=True)
             print(kind,rep,res['timings'],flush=True)
 if __name__=='__main__': run(sys.argv[1],*map(int,sys.argv[2:]))

@@ -7,7 +7,7 @@ export default function (pi) {
       if (m.role === "system" && typeof m.content === "string")
         m.content = m.content.replaceAll(process.cwd(), "/fixture");
     }
-    return { ...p, temperature: 0, max_tokens: 512, seed: 17, stream_options: { include_usage: true } };
+    return { ...p, cache_prompt: p.messages.some(m => m.role === "tool"), temperature: 0, max_tokens: 512, seed: 17, stream_options: { include_usage: true } };
   });
   pi.on("tool_call", (e) => {
     const a = e.input;
@@ -15,8 +15,11 @@ export default function (pi) {
     let ok = false;
     if (e.toolName === "read") ok = path === "calc.py";
     if (e.toolName === "edit") ok = path === "calc.py" && a.edits?.length === 1
-      && a.edits[0].oldText === gate.old && a.edits[0].newText === gate.new;
-    if (e.toolName === "bash") ok = a.command === "python3 -B check.py";
+      && typeof a.edits[0].oldText === "string" && a.edits[0].oldText.length > 0
+      && gate.before.includes(a.edits[0].oldText)
+      && gate.before.replace(a.edits[0].oldText, () => a.edits[0].newText) === gate.after;
+    if (e.toolName === "bash") ok = a.command === "python3 -B check.py"
+      || a.command === 'grep -n "' + gate.old + '" calc.py';
     if (!ok) return {block: true, terminate: true, reason: "Fixture tool arguments failed."};
   });
 }

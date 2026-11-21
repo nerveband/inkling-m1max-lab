@@ -17,7 +17,7 @@ def run(out,held=False):
             return subprocess.check_output(['git','-c','user.name=Fixture','-c','user.email=fixture@example.invalid','-c','core.hooksPath=/dev/null','-c','commit.gpgsign=false',*args],cwd=cwd,text=True).strip()
         git('init','-q');git('add','calc.py','check.py');git('commit','-qm','Synthetic input')
         git('worktree','add','-q','--detach',str(fixture),'HEAD')
-        (base/'gate.json').write_text(json.dumps(dict(old=old,new=new)))
+        (base/'gate.json').write_text(json.dumps(dict(old=old,new=new,before=before,after=after)))
         model_id=os.environ.get('BENCH_MODEL_ID','inkling')
         cfg=json.loads((ROOT/'configs/models.json').read_text())
         cfg['providers']['inkling-local']['models'][0]['id']=model_id
@@ -39,7 +39,7 @@ def run(out,held=False):
         answer=''.join(c.get('text','') for c in messages[-1].get('content',[]) if c.get('type')=='text').strip() if messages else ''
         diff=git('diff','--name-only',cwd=fixture)
         test=subprocess.run(['python3','-B','check.py'],cwd=fixture,capture_output=True)
-        ok=(result.returncode==0 and [c['toolName'] for c in calls]==['read','edit','bash'] and len(verified)==3 and all(not v.get('isError') for v in verified) and diff=='calc.py' and (fixture/'calc.py').read_text()==after and test.returncode==0 and answer==final)
+        ok=(result.returncode==0 and [c['toolName'] for c in calls if c['toolName']!='bash' or c.get('args',{}).get('command')=='python3 -B check.py']==['read','edit','bash'] and len(verified)==len(calls) and all(not v.get('isError') for v in verified) and diff=='calc.py' and (fixture/'calc.py').read_text()==after and test.returncode==0 and answer==final)
         turns=[json.loads(p.read_text()) for p in sorted(out.glob('response-*.json'))]
         summary=dict(passed=ok,wall_s=elapsed,tools=[c['toolName'] for c in calls],answer=answer,test=test.returncode,turns=turns)
         (out/'score.json').write_text(json.dumps(summary,indent=2));print('Pi',ok,round(elapsed,2),summary['tools'],repr(answer[:80]),flush=True)
