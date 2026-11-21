@@ -1,0 +1,17 @@
+{"t": 4.349, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 0, "gpu_system": 17039360, "rss_kib": 285280}
+{"t": 5.438, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 8, "gpu_system": 2831237120, "rss_kib": 13506944}
+{"t": 6.514, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 0, "gpu_system": 174227456, "rss_kib": 13455152}
+{"t": 7.594, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 71, "gpu_system": 1809055744, "rss_kib": 13623968}
+{"t": 8.686, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 61, "gpu_system": 15726379008, "rss_kib": 13865024}
+{"t": 9.772, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 96, "gpu_system": 16313663488, "rss_kib": 13802416}
+{"t": 10.848, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 83, "gpu_system": 16335716352, "rss_kib": 13807232}
+{"t": 11.943, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 100, "gpu_system": 16282812416, "rss_kib": 13807296}
+{"t": 13.028, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 100, "gpu_system": 17637621760, "rss_kib": 13807296}
+{"t": 14.124, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 100, "gpu_system": 18189336576, "rss_kib": 13807296}
+{"t": 15.211, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 91, "gpu_system": 16194322432, "rss_kib": 13812320}
+{"t": 16.303, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 98, "gpu_system": 15729770496, "rss_kib": 14085072}
+{"t": 17.397, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 98, "gpu_system": 16050552832, "rss_kib": 14084880}
+{"t": 18.494, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 97, "gpu_system": 17034788864, "rss_kib": 14084896}
+{"t": 19.575, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 87, "gpu_system": 15832334336, "rss_kib": 14378112}
+{"t": 20.659, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 96, "gpu_system": 16519528448, "rss_kib": 14379136}
+{"t": 21.74, "pressure": 1, "swap_mib": 0.25, "ac": true, "gpu_pct": 95, "gpu_system": 16479059968, "rss_kib": 14397568}

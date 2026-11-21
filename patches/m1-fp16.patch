@@ -1,0 +1,9 @@
+--- a/omlx/patches/inkling2/model.py
++++ b/omlx/patches/inkling2/model.py
+@@ -917 +917,2 @@
+-        return out
++        print("BENCH fp16 conversion:", sum(v.dtype == mx.bfloat16 for v in out.values()), flush=True)
++        return {k: v.astype(mx.float16) if v.dtype == mx.bfloat16 else v for k, v in out.items()}
+@@ -934,0 +936,2 @@
++
++print("BENCH loaded isolated Inkling module: fp16", flush=True)

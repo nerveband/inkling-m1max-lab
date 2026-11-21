@@ -1,0 +1,16 @@
+--- a/omlx/patches/inkling2/model.py
++++ b/omlx/patches/inkling2/model.py
+@@ -287,2 +287,8 @@
+-            xe, idx, inv = _gather_sort(xe, inds)
+-        y = self.w13(xe, idx, do_sort)
++            flat_indices = inds.flatten()
++            order = mx.argsort(flat_indices)
++            inv = mx.argsort(order)
++            idx = flat_indices[order]
++            source = xe.flatten(0, -3)
++            y = mx.gather_qmm(source, self.w13.weight, self.w13.scales, self.w13.get("biases"), lhs_indices=order // inds.shape[-1], rhs_indices=idx, transpose=True, group_size=self.w13.group_size, bits=self.w13.bits, mode=self.w13.mode, sorted_indices=True)
++        else:
++            y = self.w13(xe, idx, False)
+@@ -934,0 +941,2 @@
++
++print("BENCH loaded isolated Inkling module: indexed", flush=True)

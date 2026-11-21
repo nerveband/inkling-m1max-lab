@@ -1,7 +1,7 @@
 import json, os, pathlib, shutil, subprocess, sys, tempfile, threading, time
 from proxy import make_proxy
 ROOT=pathlib.Path(__file__).resolve().parent
-def run(out,held=False,stock_provider=False,greedy_provider=False):
+def run(out,held=False,stock_provider=False,greedy_provider=False,prewarm_provider=False):
     out=pathlib.Path(out).resolve(); out.mkdir(parents=True)
     old,new,fn,args,expected=('return a - b','return a + b','add','8, 3',11) if not held else ('return n + 1','return n - 1','previous','19',18)
     final='PATCH VERIFIED' if not held else 'CHECK COMPLETE'
@@ -33,6 +33,15 @@ def run(out,held=False,stock_provider=False,greedy_provider=False):
             start=cli.index('-e')
             del cli[start:start+2]
             if greedy_provider:cli[start:start]=['-e',str(ROOT/'configs/pi-greedy.ts')]
+        if prewarm_provider:
+            if not (stock_provider and greedy_provider and bypass_proxy):
+                raise ValueError('Use the ordinary direct greedy provider to prewarm a project.')
+            prime=cli[:-1]+['Reply READY. Do not use tools.']
+            prime[prime.index('--tools'):prime.index('--tools')]=['-e',str(ROOT/'configs/pi-warm-prefix.ts')]
+            started=time.monotonic()
+            with (out/'prime.jsonl').open('w') as f, (out/'prime-stderr').open('w') as e:
+                subprocess.run(prime,cwd=fixture,env=env,stdout=f,stderr=e,timeout=180,check=True)
+            (out/'startup-prime.json').write_text(json.dumps({'seconds':time.monotonic()-started}))
         proxy=None if bypass_proxy else make_proxy(out)
         if proxy:threading.Thread(target=proxy.serve_forever,daemon=True).start()
         try:
@@ -66,4 +75,4 @@ def run(out,held=False,stock_provider=False,greedy_provider=False):
         summary=dict(passed=ok,checks=checks,wall_s=elapsed,tools=[c['toolName'] for c in calls],answer=answer,test=test.returncode,turns=turns)
         (out/'score.json').write_text(json.dumps(summary,indent=2));print('Pi',ok,round(elapsed,2),summary['tools'],repr(answer[:80]),flush=True)
         return summary
-if __name__=='__main__': run(sys.argv[1], '--held' in sys.argv, '--stock-provider' in sys.argv or '--greedy-provider' in sys.argv, '--greedy-provider' in sys.argv)
+if __name__=='__main__': run(sys.argv[1], '--held' in sys.argv, any(flag in sys.argv for flag in ('--stock-provider','--greedy-provider','--prewarm-provider')), any(flag in sys.argv for flag in ('--greedy-provider','--prewarm-provider')), '--prewarm-provider' in sys.argv)

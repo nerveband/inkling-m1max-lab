@@ -28,6 +28,23 @@ def application(app,dmg):
         try:yield mount/'oMLX.app'
         finally:subprocess.run(['hdiutil','detach',str(mount)],check=True)
 
+def sorted_expert_package(resources, folder):
+    """Shadow only the pinned model module for the small-batch expert-sort experiment."""
+    source=resources
+    dest=folder
+    for component in ('omlx','patches','inkling2','model.py'):
+        for entry in source.iterdir():
+            if entry.name not in (component,'__pycache__'):
+                (dest/entry.name).symlink_to(entry,target_is_directory=entry.is_dir())
+        source=source/component
+        dest=dest/component
+        if source.is_dir():dest.mkdir()
+    original=source.read_text()
+    threshold='do_sort = inds.size >= 64'
+    if original.count(threshold)!=1:raise RuntimeError('Unexpected release model source')
+    dest.write_text(original.replace(threshold,'do_sort = inds.size >= 32'))
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     source=parser.add_mutually_exclusive_group(required=True)
@@ -39,6 +56,7 @@ def main():
     parser.add_argument('--context',type=int,default=32768)
     parser.add_argument('--depth',type=int,default=6)
     parser.add_argument('--slots',type=int,choices=(1,2),default=1)
+    parser.add_argument('--sort-small-expert-batches',action='store_true',help='Experimentally sort expert work at 32 indices instead of 64.')
     args=parser.parse_args()
     weights,state,cache=(p.expanduser().resolve() for p in (args.weights,args.state,args.cache))
     if not (weights/'mtp.safetensors').is_file():
@@ -55,12 +73,15 @@ def main():
     config={'mtp_enabled':args.depth>0,'max_context_window':args.context}
     if args.depth:config['mtp_fixed_depth']=args.depth
     (state/'model_settings.json').write_text(json.dumps({'version':2,'models':{'inkling':config}},indent=2)+'\n')
-    with application(args.app,args.dmg) as app:
+    with application(args.app,args.dmg) as app, tempfile.TemporaryDirectory(prefix='inkling-kernel-') as overlay:
         contents=app/'Contents'
         with (contents/'Info.plist').open('rb') as f:
             if plistlib.load(f)['CFBundleShortVersionString']!='0.8.2':raise SystemExit('Expected oMLX 0.8.2.')
         resources=contents/'Resources';py=resources/'Python'
         modules=os.pathsep.join(map(str,(resources,py/'framework-mlx-base/lib/python3.11/site-packages')))
+        if args.sort_small_expert_batches:
+            sorted_expert_package(resources,Path(overlay))
+            modules=overlay+os.pathsep+modules
         environment=dict(os.environ,PYTHONPATH=modules,HF_HUB_OFFLINE='1',HF_HOME=str(cache/'hub'),PYTHONDONTWRITEBYTECODE='1')
         command=[str(py/'cpython-3.11/bin/python3.11'),'-m','omlx.cli','serve','--base-path',str(state),'--model-dir',str(models),'--host','127.0.0.1','--port','18089','--max-concurrent-requests',str(args.slots),'--headless','--paged-ssd-cache-dir',str(cache/'kv'),'--paged-ssd-cache-max-size','2GB','--hot-cache-max-size','1GB']
         with subprocess.Popen(command,env=environment,start_new_session=True) as server:

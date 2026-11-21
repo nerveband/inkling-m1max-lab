@@ -1,0 +1,11 @@
+--- a/omlx/patches/inkling2/model.py
++++ b/omlx/patches/inkling2/model.py
+@@ -282 +282 @@
+-        xe = mx.expand_dims(x, (-2, -3))
++        xe = mx.expand_dims(x.astype(mx.float16), (-2, -3))
+@@ -917 +917 @@
+-        return out
++        return {k: v.astype(mx.float16) if ".mlp.experts." in k and v.dtype == mx.bfloat16 else v for k, v in out.items()}
+@@ -934,0 +935,2 @@
++
++print("BENCH loaded isolated Inkling module: expert-fp16", flush=True)

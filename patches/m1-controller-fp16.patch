@@ -1,0 +1,11 @@
+--- a/omlx/patches/inkling2/model.py
++++ b/omlx/patches/inkling2/model.py
+@@ -359 +359 @@
+-    low = (z @ down.reshape(2 * n, hidden, -1)).reshape(n, 2, rows, -1).sum(axis=1)
++    low = (z.astype(mx.float16) @ down.astype(mx.float16).reshape(2 * n, hidden, -1)).astype(mx.float32).reshape(n, 2, rows, -1).sum(axis=1)
+@@ -361 +361 @@
+-    gates = (low @ gain_forget).reshape(n, b, length, 2 * hidden)
++    gates = (low.astype(mx.float16) @ gain_forget.astype(mx.float16)).astype(mx.float32).reshape(n, b, length, 2 * hidden)
+@@ -934,0 +935,2 @@
++
++print("BENCH loaded isolated Inkling module: controller-fp16", flush=True)

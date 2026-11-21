@@ -1,0 +1,15 @@
+--- a/omlx/patches/inkling2/model.py
++++ b/omlx/patches/inkling2/model.py
+@@ -267,0 +268,5 @@
++@mx.compile
++def _bench_weighted_sum(z, weights, x):
++    return mx.sum(z.astype(mx.float32) * weights[..., None], axis=-2).astype(x.dtype)
++
++
+@@ -300,2 +305 @@
+-        out = mx.sum(z.astype(mx.float32) * weights[..., None], axis=-2)
+-        return out.astype(x.dtype)
++        return _bench_weighted_sum(z, weights, x)
+@@ -934,0 +939,2 @@
++
++print("BENCH loaded isolated Inkling module: fuse", flush=True)

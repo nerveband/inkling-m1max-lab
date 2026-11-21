@@ -1,0 +1,15 @@
+{
+  "submitted_depth": 3,
+  "submitted_evidence": "raw/registry-64k-two/lab-evidence.json",
+  "depth6_completed_runs": [
+    {
+      "raw": "raw/registry-64k-d6/lab-evidence.json",
+      "speed": 14.8,
+      "threshold": 15,
+      "passed": false
+    }
+  ],
+  "repeat_one": "interrupted before a scored result",
+  "repeat_two": "not started",
+  "reason": "Experiment priority moved to faster execution paths after the first full result."
+}

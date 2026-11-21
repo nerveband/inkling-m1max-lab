@@ -37,6 +37,20 @@ The optional greedy extension sets temperature 0, seed 17 and a 512-ID output bu
 
 The 65,536-token qualification used two configured request slots and one active request. To reproduce it, use `--context 65536 --slots 2` in the foreground command and copy `configs/pi-direct-64k.json` as the disposable agent's `models.json`. At fixed depths 3 and 6, the exact ordered retrieval test submitted 31,954 and 64,717 input IDs and reserved 768 output IDs. Pi still used 512 IDs per response. The benchmark and the registry tested one active stream.
 
+## Warm a project's shared Pi prefix
+
+Keep the server and its prefix cache running. From the project where you will use Pi, set `LAB` to the absolute path of this checkout and keep the same disposable provider directory for both commands. The first command prepares a snapshot of the shared system and tool prefix. It uses two synthetic user messages to locate the boundary. It sends the prefix exclusively to the loopback endpoint. Its setup time is separate from subsequent task latency.
+
+```sh
+pi --offline --provider inkling-local --model inkling --thinking off \
+  -e "$LAB/configs/pi-greedy.ts" -e "$LAB/configs/pi-warm-prefix.ts" \
+  -p "Reply READY. Do not use tools."
+pi --offline --provider inkling-local --model inkling --thinking off \
+  -e "$LAB/configs/pi-greedy.ts"
+```
+
+The cache key depends on the rendered system prompt and tools. Changing projects, tools, extensions that alter the prompt, or model can change the prefix. First prompts after a fresh launch include the full prefill cost.
+
 ## GGUF controls
 
 Download both top-level GGUF files from [the Unsloth pinned revision](https://huggingface.co/unsloth/Inkling-2-Mini-GGUF/tree/ae9327c5fbc7333116ba32eee78bb5d2bbefae4f). Use the pinned [Apple Silicon runtime](https://github.com/unslothai/llama.cpp/releases/tag/b12588-mix-c0c3de8). Target and draft checksums are in PLAN.md. Set LLAMA_SERVER to the extracted binary. The plain and depth-6 launches differ only by the draft flags.

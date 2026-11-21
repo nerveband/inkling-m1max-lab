@@ -1,0 +1,28 @@
+{
+  "prime_s": 6.2557523750001565,
+  "usage": {
+    "prompt_tokens": 1379,
+    "completion_tokens": 32,
+    "total_tokens": 1411,
+    "input_tokens": 1379,
+    "output_tokens": 32,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 30
+    },
+    "time_to_first_token": 5.2,
+    "total_time": 6.25,
+    "prompt_eval_duration": 5.2,
+    "generation_duration": 1.05,
+    "prompt_tokens_per_second": 265.08,
+    "generation_tokens_per_second": 30.55
+  },
+  "unrelated_prompt": [
+    {
+      "type": "text",
+      "text": "Reply with the number of days in one week. No tools are needed."
+    }
+  ]
+}

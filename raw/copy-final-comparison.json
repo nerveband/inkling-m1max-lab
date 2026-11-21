@@ -1,0 +1,157 @@
+{
+  "copy": {
+    "legs": [
+      {
+        "count": 6,
+        "decode_tps": {
+          "median": 18.666562855880105,
+          "low": 18.622827994010315,
+          "high": 19.459528758894148
+        },
+        "prefill_tps": {
+          "median": 171.58366820858492,
+          "low": 171.47395174197192,
+          "high": 171.6314068043137
+        },
+        "ttft_s": {
+          "median": 11.95429656250053,
+          "low": 11.951451208002254,
+          "high": 11.9637927090007
+        },
+        "wall_s": {
+          "median": 25.616614458500408,
+          "low": 25.057332459000463,
+          "high": 25.656688417002442
+        },
+        "generated_ids": [
+          256,
+          256,
+          256,
+          256,
+          256,
+          256
+        ],
+        "accepted": 0,
+        "proposed": 0
+      },
+      {
+        "count": 6,
+        "decode_tps": {
+          "median": 114.39095275999594,
+          "low": 51.22905535229116,
+          "high": 114.90575475056438
+        },
+        "prefill_tps": {
+          "median": 168.66717629515875,
+          "low": 168.59841372601835,
+          "high": 168.79926849254505
+        },
+        "ttft_s": {
+          "median": 12.162676229499993,
+          "low": 12.151430375000928,
+          "high": 12.16700999999739
+        },
+        "wall_s": {
+          "median": 14.404225916498035,
+          "low": 14.391834499998367,
+          "high": 17.155333667000377
+        },
+        "generated_ids": [
+          256,
+          256,
+          256,
+          256,
+          256,
+          256
+        ],
+        "accepted": 1499,
+        "proposed": 1592
+      },
+      {
+        "count": 6,
+        "decode_tps": {
+          "median": 18.513284788187356,
+          "low": 17.959312227361792,
+          "high": 19.419886115695306
+        },
+        "prefill_tps": {
+          "median": 167.6059597070703,
+          "low": 160.4163807683318,
+          "high": 171.59932328868427
+        },
+        "ttft_s": {
+          "median": 12.24657997850045,
+          "low": 11.952231750001374,
+          "high": 12.786020250001457
+        },
+        "wall_s": {
+          "median": 26.020385103998706,
+          "low": 25.096447583000554,
+          "high": 26.984929250000278
+        },
+        "generated_ids": [
+          256,
+          256,
+          256,
+          256,
+          256,
+          256
+        ],
+        "accepted": 0,
+        "proposed": 0
+      }
+    ],
+    "complete_output_ids_match": [
+      true,
+      true,
+      true,
+      true,
+      false,
+      true
+    ],
+    "candidate_quality": [
+      {
+        "rep": 0,
+        "characters_before_code": 0,
+        "exact_copy_characters": 606,
+        "complete_functions": 10,
+        "only_reference_prefix": true
+      },
+      {
+        "rep": 1,
+        "characters_before_code": 0,
+        "exact_copy_characters": 606,
+        "complete_functions": 10,
+        "only_reference_prefix": true
+      },
+      {
+        "rep": 2,
+        "characters_before_code": 0,
+        "exact_copy_characters": 606,
+        "complete_functions": 10,
+        "only_reference_prefix": true
+      },
+      {
+        "rep": 3,
+        "characters_before_code": 0,
+        "exact_copy_characters": 606,
+        "complete_functions": 10,
+        "only_reference_prefix": true
+      },
+      {
+        "rep": 4,
+        "characters_before_code": 157,
+        "exact_copy_characters": 523,
+        "complete_functions": 9,
+        "only_reference_prefix": true
+      },
+      {
+        "rep": 5,
+        "characters_before_code": 0,
+        "exact_copy_characters": 606,
+        "complete_functions": 10,
+        "only_reference_prefix": true
+      }
+    ]
+  }
+}

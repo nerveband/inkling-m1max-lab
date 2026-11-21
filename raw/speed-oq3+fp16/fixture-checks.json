@@ -1,0 +1,21 @@
+{
+  "pi": {
+    "passed": true,
+    "checks": {
+      "exit_ok": true,
+      "ordered_tools": true,
+      "tools_ok": true,
+      "exact_diff": true,
+      "test_ok": true,
+      "answer_ok": true
+    },
+    "tools": [
+      "read",
+      "edit",
+      "bash"
+    ],
+    "test_exit": 0,
+    "expected_final": "PATCH VERIFIED",
+    "final_exact": true
+  }
+}

@@ -46,3 +46,5 @@ python3.12 run.py lookup256-dspark6 measurements/copy-b python3.12 copy_panel.py
 python3.12 run.py plain measurements/copy-c python3.12 copy_panel.py measurements/copy-c
 python3.12 direct_compare.py copy-panel.jsonl measurements/copy-a measurements/copy-b measurements/copy-c
 ```
+
+The GGUF raw panel disables target prompt-KV reuse. In the lookup implementation, the n-gram table belongs to the server process and is shared across sequences. Each new input also trains it from the supplied prompt. Warm repeated-code measurements can use patterns carried from earlier requests. The 108.45 tok/s screen measured the first copy request after an unrelated fresh-code warmup. The separate six-copy bracket measures a warmed repeated-code workload.

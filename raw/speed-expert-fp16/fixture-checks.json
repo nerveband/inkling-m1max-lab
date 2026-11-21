@@ -1,0 +1,17 @@
+{
+  "pi": {
+    "passed": false,
+    "checks": {
+      "exit_ok": true,
+      "ordered_tools": false,
+      "tools_ok": true,
+      "exact_diff": false,
+      "test_ok": false,
+      "answer_ok": false
+    },
+    "tools": [],
+    "test_exit": 1,
+    "expected_final": "PATCH VERIFIED",
+    "final_exact": false
+  }
+}

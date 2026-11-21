@@ -1,0 +1,19 @@
+--- a/omlx/patches/inkling2/model.py
++++ b/omlx/patches/inkling2/model.py
+@@ -288 +288,3 @@
+-        y = self.w13(xe, idx, do_sort)
++        half13 = self.w13.mode == "nvfp4"
++        v13 = (xe * (1.0 / 64)).astype(mx.float16) if half13 else xe
++        y = self.w13(v13, idx, do_sort)
+@@ -291 +293 @@
+-            y = y * s13[..., None, None].astype(y.dtype)
++            y = (y.astype(mx.float32) * (64.0 * s13[..., None, None])).astype(x.dtype) if half13 else y * s13[..., None, None].astype(y.dtype)
+@@ -293 +295,4 @@
+-        z = self.w2(act, idx, do_sort)
++        half2 = self.w2.mode == "nvfp4"
++        v2 = (act * (1.0 / 64)).astype(mx.float16) if half2 else act
++        z = self.w2(v2, idx, do_sort)
++        if half2: z = z.astype(mx.float32) * 64.0
+@@ -934,0 +940,2 @@
++
++print("BENCH loaded isolated Inkling module: scaled-experts", flush=True)

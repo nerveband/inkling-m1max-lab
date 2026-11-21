@@ -1,0 +1,8 @@
+--- a/omlx/patches/inkling2/model.py
++++ b/omlx/patches/inkling2/model.py
+@@ -283 +283 @@
+-        do_sort = inds.size >= 64
++        do_sort = inds.size >= 32
+@@ -934,0 +935,2 @@
++
++print("BENCH loaded isolated Inkling module: sort32", flush=True)
