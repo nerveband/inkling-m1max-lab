@@ -94,3 +94,23 @@ Exactly 2,048 and 8,192 input IDs, 256 output IDs requested, one warm-up and six
 Median plain prefill was about 172 tok/s at 2K and 149 at 8K. Depth 6 reached about 169 and 147. All three legs had zero reused prompt IDs on the scored raw requests. See raw/direct-comparison.json for min, median, max, TTFT, wall time, output lengths and acceptance. The direct fresh-code budget can cut off an implementation. These rates measure token generation, with coding correctness scored through the separate Pi tool fixtures.
 
 In the separate verbose GGUF depth-6 profile, the draft generator took 1,038.7 ms for 218/218 accepted copy proposals and 2,362.6 ms for 170/500 accepted fresh-code proposals. The remaining decode interval includes target verification and scheduling. The backend does not separate those two costs on this build. Replaying the exact free-reasoning prefix at the original copy divergence (ID index 55) returned the plain token in both new processes, with a 0.0657 log-probability gap. At the fresh-code split (index 98), both replays returned the original speculative token, with a 0.0376 gap. These are different evaluation paths and close top-two choices. The evidence does not isolate rollback as the cause.
+
+With GGUF depth 6 held fixed, microbatch 256 reached 28.06 Pi tok/s in 19.31 s and microbatch 1,024 reached 27.78 in 19.08 s. The larger microbatch failed the held-out zero-tool-error gate. Forcing Flash Attention reached 27.82 in 18.76 s and passed held-out in 36.38 s on a five-tool trajectory. All three primary decode changes were within 1% of the 27.94 controlled result. None supplied a promotion.
+
+## Candidate depths with native prefix caching
+
+Each row is one screen, with a warmed server, a fresh cache at server startup and one active request. The latency includes Pi, structured tools, test execution and all model responses.
+
+| Fixed DSpark depth | Primary generated tok/s | Primary seconds | Held-out seconds | Strict held-out result |
+|---:|---:|---:|---:|---|
+| 1 | 26.17 | 17.55 | 18.19 | Pass |
+| 2 | 30.60 | 16.45 | 17.06 | Pass |
+| 3 | 33.81 | 15.95 | 16.49 | Pass |
+| 4 | 34.63 | 15.68 | 27.53 | Failed tool, then recovered |
+| 5 | 35.68 | 15.47 | 15.89 | Pass |
+| 6 | 38.17 | 15.08 | 15.69 | Pass |
+| 7 | 35.09 | 15.58 | 17.46 | Pass |
+
+The native adaptive maximum-6 screen reached 32.27 tok/s and 16.15 s on the cached primary task. The strongest fixed-depth screen was 6 on both primary criteria. Its repetition uses two adjacent fixed-depth-3 controls.
+
+On the 2K exact-copy screen, 16-, 32- and 64-token lookup caps produced 36.91, 60.32 and 78.28 tok/s. All 256 IDs matched plain decoding. Each returned 606 exact characters, ten complete functions and part of the next. Accepted proposals were 229/229, 236/236 and 240/240. Primary Pi throughput fell to 17.88, 17.85 and 16.62 tok/s. Larger caps are tested separately up to the 256-output panel size.

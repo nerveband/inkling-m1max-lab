@@ -1,0 +1,184 @@
+[
+  {
+    "tokens": 256,
+    "cycles": 91,
+    "accepted": 163,
+    "proposed": 235,
+    "ms": {
+      "backbone": 10043.8,
+      "mtp": 27.3,
+      "sample": 3.5,
+      "cache": 59.7
+    },
+    "detail": "MTP[0] finish=length tokens=256 cycles=91 tok/cycle=2.81 accept=163/235 (69.4%) depth[d1=70/91,d2=46/70,d3=28/46,d4=19/28] emits[init=2,draft=163,bonus=19,verify=72] timing[backbone=10043.8ms mtp=27.3ms sample=3.5ms cache=59.7ms]"
+  },
+  {
+    "tokens": 256,
+    "cycles": 91,
+    "accepted": 163,
+    "proposed": 235,
+    "ms": {
+      "backbone": 9779.3,
+      "mtp": 25.1,
+      "sample": 3.7,
+      "cache": 60.4
+    },
+    "detail": "MTP[1] finish=length tokens=256 cycles=91 tok/cycle=2.81 accept=163/235 (69.4%) depth[d1=70/91,d2=46/70,d3=28/46,d4=19/28] emits[init=2,draft=163,bonus=19,verify=72] timing[backbone=9779.3ms mtp=25.1ms sample=3.7ms cache=60.4ms]"
+  },
+  {
+    "tokens": 41,
+    "cycles": 9,
+    "accepted": 30,
+    "proposed": 33,
+    "ms": {
+      "backbone": 1027.5,
+      "mtp": 33.6,
+      "sample": 0.4,
+      "cache": 2.7
+    },
+    "detail": "MTP[2] finish=stop tokens=41 cycles=9 tok/cycle=4.56 accept=30/33 (90.9%) depth[d1=9/9,d2=8/9,d3=7/8,d4=6/7] emits[init=2,draft=30,bonus=6,verify=3] timing[backbone=1027.5ms mtp=33.6ms sample=0.4ms cache=2.7ms]"
+  },
+  {
+    "tokens": 64,
+    "cycles": 16,
+    "accepted": 46,
+    "proposed": 53,
+    "ms": {
+      "backbone": 1829.6,
+      "mtp": 32.3,
+      "sample": 0.8,
+      "cache": 6.2
+    },
+    "detail": "MTP[3] finish=stop tokens=64 cycles=16 tok/cycle=4.00 accept=46/53 (86.8%) depth[d1=13/16,d2=13/13,d3=11/13,d4=9/11] emits[init=2,draft=46,bonus=9,verify=7] timing[backbone=1829.6ms mtp=32.3ms sample=0.8ms cache=6.2ms]"
+  },
+  {
+    "tokens": 63,
+    "cycles": 14,
+    "accepted": 47,
+    "proposed": 52,
+    "ms": {
+      "backbone": 1599.1,
+      "mtp": 35.8,
+      "sample": 0.7,
+      "cache": 4.7
+    },
+    "detail": "MTP[4] finish=stop tokens=63 cycles=14 tok/cycle=4.50 accept=47/52 (90.4%) depth[d1=14/14,d2=13/14,d3=11/13,d4=9/11] emits[init=2,draft=47,bonus=9,verify=5] timing[backbone=1599.1ms mtp=35.8ms sample=0.7ms cache=4.7ms]"
+  },
+  {
+    "tokens": 34,
+    "cycles": 7,
+    "accepted": 25,
+    "proposed": 26,
+    "ms": {
+      "backbone": 805.6,
+      "mtp": 34.0,
+      "sample": 0.3,
+      "cache": 1.1
+    },
+    "detail": "MTP[5] finish=stop tokens=34 cycles=7 tok/cycle=4.86 accept=25/26 (96.2%) depth[d1=7/7,d2=6/7,d3=6/6,d4=6/6] emits[init=2,draft=25,bonus=6,verify=1] timing[backbone=805.6ms mtp=34.0ms sample=0.3ms cache=1.1ms]"
+  },
+  {
+    "tokens": 21,
+    "cycles": 6,
+    "accepted": 13,
+    "proposed": 17,
+    "ms": {
+      "backbone": 687.4,
+      "mtp": 34.9,
+      "sample": 0.3,
+      "cache": 3.3
+    },
+    "detail": "MTP[6] finish=stop tokens=21 cycles=6 tok/cycle=3.50 accept=13/17 (76.5%) depth[d1=5/6,d2=4/5,d3=2/4,d4=2/2] emits[init=2,draft=13,bonus=2,verify=4] timing[backbone=687.4ms mtp=34.9ms sample=0.3ms cache=3.3ms]"
+  },
+  {
+    "tokens": 41,
+    "cycles": 9,
+    "accepted": 30,
+    "proposed": 33,
+    "ms": {
+      "backbone": 1024.7,
+      "mtp": 32.8,
+      "sample": 0.5,
+      "cache": 2.8
+    },
+    "detail": "MTP[7] finish=stop tokens=41 cycles=9 tok/cycle=4.56 accept=30/33 (90.9%) depth[d1=9/9,d2=8/9,d3=7/8,d4=6/7] emits[init=2,draft=30,bonus=6,verify=3] timing[backbone=1024.7ms mtp=32.8ms sample=0.5ms cache=2.8ms]"
+  },
+  {
+    "tokens": 55,
+    "cycles": 13,
+    "accepted": 40,
+    "proposed": 45,
+    "ms": {
+      "backbone": 1495.1,
+      "mtp": 33.7,
+      "sample": 0.6,
+      "cache": 4.3
+    },
+    "detail": "MTP[8] finish=stop tokens=55 cycles=13 tok/cycle=4.23 accept=40/45 (88.9%) depth[d1=11/13,d2=11/11,d3=10/11,d4=8/10] emits[init=2,draft=40,bonus=8,verify=5] timing[backbone=1495.1ms mtp=33.7ms sample=0.6ms cache=4.3ms]"
+  },
+  {
+    "tokens": 82,
+    "cycles": 25,
+    "accepted": 55,
+    "proposed": 70,
+    "ms": {
+      "backbone": 2859.6,
+      "mtp": 32.6,
+      "sample": 1.3,
+      "cache": 13.0
+    },
+    "detail": "MTP[9] finish=stop tokens=82 cycles=25 tok/cycle=3.28 accept=55/70 (78.6%) depth[d1=18/25,d2=15/18,d3=12/15,d4=10/12] emits[init=2,draft=55,bonus=10,verify=15] timing[backbone=2859.6ms mtp=32.6ms sample=1.3ms cache=13.0ms]"
+  },
+  {
+    "tokens": 155,
+    "cycles": 38,
+    "accepted": 115,
+    "proposed": 127,
+    "ms": {
+      "backbone": 4358.6,
+      "mtp": 35.3,
+      "sample": 2.0,
+      "cache": 11.3
+    },
+    "detail": "MTP[10] finish=stop tokens=155 cycles=38 tok/cycle=4.08 accept=115/127 (90.6%) depth[d1=33/38,d2=29/33,d3=27/29,d4=26/27] emits[init=2,draft=115,bonus=26,verify=12] timing[backbone=4358.6ms mtp=35.3ms sample=2.0ms cache=11.3ms]"
+  },
+  {
+    "tokens": 98,
+    "cycles": 29,
+    "accepted": 67,
+    "proposed": 84,
+    "ms": {
+      "backbone": 3316.2,
+      "mtp": 33.1,
+      "sample": 1.4,
+      "cache": 14.9
+    },
+    "detail": "MTP[11] finish=stop tokens=98 cycles=29 tok/cycle=3.38 accept=67/84 (79.8%) depth[d1=22/29,d2=18/22,d3=15/18,d4=12/15] emits[init=2,draft=67,bonus=12,verify=17] timing[backbone=3316.2ms mtp=33.1ms sample=1.4ms cache=14.9ms]"
+  },
+  {
+    "tokens": 34,
+    "cycles": 7,
+    "accepted": 25,
+    "proposed": 26,
+    "ms": {
+      "backbone": 810.7,
+      "mtp": 33.1,
+      "sample": 0.3,
+      "cache": 1.2
+    },
+    "detail": "MTP[12] finish=stop tokens=34 cycles=7 tok/cycle=4.86 accept=25/26 (96.2%) depth[d1=7/7,d2=6/7,d3=6/6,d4=6/6] emits[init=2,draft=25,bonus=6,verify=1] timing[backbone=810.7ms mtp=33.1ms sample=0.3ms cache=1.2ms]"
+  },
+  {
+    "tokens": 21,
+    "cycles": 6,
+    "accepted": 13,
+    "proposed": 17,
+    "ms": {
+      "backbone": 690.2,
+      "mtp": 35.6,
+      "sample": 0.3,
+      "cache": 3.4
+    },
+    "detail": "MTP[13] finish=stop tokens=21 cycles=6 tok/cycle=3.50 accept=13/17 (76.5%) depth[d1=5/6,d2=4/5,d3=2/4,d4=2/2] emits[init=2,draft=13,bonus=2,verify=4] timing[backbone=690.2ms mtp=35.6ms sample=0.3ms cache=3.4ms]"
+  }
+]
