@@ -2,22 +2,23 @@
 
 The hardware was a 24-core GPU M1 Max with 64 GiB of unified memory on macOS 27.0.1. Use Python 3.12 and Pi 1.6.0. All benchmark work fits a single local endpoint. The synthetic agent configuration and normal Pi selection use the same model alias.
 
-## oMLX release and weights
+## Fast Pi launch
 
-Get the macOS 26/27 disk image from the [oMLX 0.8.2 release](https://github.com/jundot/omlx/releases/tag/v0.8.2). Its SHA-256 is 6316ad32cde3248bcf23abece8b9222847f7ae8e594cea1b378a34049252df78. The launcher can mount it read-only and detach on exit. Supply the full native target directory, including mtp.safetensors, from [mlx-community/Inkling-2-Mini-oQ4e-mtp at 3eea042](https://huggingface.co/mlx-community/Inkling-2-Mini-oQ4e-mtp/tree/3eea042751cd296b7266628a8342c1749242e1fe). To download the pinned snapshot with the Hugging Face CLI:
+Get the macOS 26/27 disk image from the [oMLX 0.8.2 release](https://github.com/jundot/omlx/releases/tag/v0.8.2). Its SHA-256 is 6316ad32cde3248bcf23abece8b9222847f7ae8e594cea1b378a34049252df78. The launcher can mount it read-only and detach on exit. The speed finalist uses the complete oQ3e target and bundled `mtp.safetensors`. Download its pinned revision to the external volume. [Native oQ3e target](https://huggingface.co/mlx-community/Inkling-2-Mini-oQ3e-mtp/tree/5552e32ec7a50fa8e9b0bfe2002aab72f8b78975)
 
 ```sh
-hf download mlx-community/Inkling-2-Mini-oQ4e-mtp \
-  --revision 3eea042751cd296b7266628a8342c1749242e1fe \
-  --local-dir "$MODEL_DIR/omlx-oq4"
+hf download mlx-community/Inkling-2-Mini-oQ3e-mtp \
+  --revision 5552e32ec7a50fa8e9b0bfe2002aab72f8b78975 \
+  --local-dir "$MODEL_DIR/omlx-oq3"
 ```
 
-Set MODEL_DIR to the external models directory and OMLX_DMG to the release image. From the experiment checkout:
+Set MODEL_DIR to the external models directory and OMLX_DMG to the release image. Run this command from the experiment checkout.
 
 ```sh
 python3.12 serve_omlx.py --dmg "$OMLX_DMG" \
-  --weights "$MODEL_DIR/omlx-oq4" --state "$PWD/inkling-omlx-state" \
-  --cache "$MODEL_DIR/inkling-agent-cache" --depth 6 --context 32768
+  --weights "$MODEL_DIR/omlx-oq3" --state "$PWD/inkling-oq3-state" \
+  --cache "$MODEL_DIR/inkling-oq3-cache" --depth 6 --context 65536 --slots 2 \
+  --sort-small-expert-batches
 ```
 
 Leave this process running in its terminal. Ctrl-C stops its server and releases its mount. The first request loads the weights. On the published prefill/qualification runs, the hot-cache cap was 1 GB and the SSD-cache cap 2 GB. One request ran at a time.
@@ -28,7 +29,7 @@ From the same checkout, create a fresh agent directory. The normal provider file
 
 ```sh
 export PI_CODING_AGENT_DIR="$(mktemp -d)"
-cp configs/pi-direct.json "$PI_CODING_AGENT_DIR/models.json"
+cp configs/pi-direct-64k.json "$PI_CODING_AGENT_DIR/models.json"
 pi --offline --provider inkling-local --model inkling --thinking off \
   -e "$PWD/configs/pi-greedy.ts"
 ```
@@ -51,6 +52,10 @@ pi --offline --provider inkling-local --model inkling --thinking off \
 
 The cache key depends on the rendered system prompt and tools. Changing projects, tools, extensions that alter the prompt, or model can change the prefix. First prompts after a fresh launch include the full prefill cost.
 
+## Original four-bit configuration
+
+The original oQ4e configuration uses [oQ4e-MTP at 3eea042](https://huggingface.co/mlx-community/Inkling-2-Mini-oQ4e-mtp/tree/3eea042751cd296b7266628a8342c1749242e1fe). Point `--weights` at that directory, use a separate state and cache, and omit `--sort-small-expert-batches`. Fixed depth 6 produced the reproducible 38.17 tok/s Pi result. Depth 3 passed the original registry gates at 20.4 tok/s. The 32K single-user variant uses `--context 32768 --slots 1` and `configs/pi-direct.json`.
+
 ## GGUF controls
 
 Download both top-level GGUF files from [the Unsloth pinned revision](https://huggingface.co/unsloth/Inkling-2-Mini-GGUF/tree/ae9327c5fbc7333116ba32eee78bb5d2bbefae4f). Use the pinned [Apple Silicon runtime](https://github.com/unslothai/llama.cpp/releases/tag/b12588-mix-c0c3de8). Target and draft checksums are in PLAN.md. Set LLAMA_SERVER to the extracted binary. The plain and depth-6 launches differ only by the draft flags.
@@ -68,4 +73,12 @@ For fixed depth 6 append:
 --spec-draft-model "$MODEL_DIR/dspark-Inkling-2-Mini-Q8_0.gguf"
 ```
 
-Use the same Pi selection command. The three-pass production loop stays fixed throughout.
+Use configs/pi-direct.json for the 32K GGUF launch. The three-pass production loop stays fixed throughout.
+
+For the strongest sustained-session result, run the native oQ4e target from a separate state directory and cache. Keep the same local Pi provider and model alias. The submitted registry version uses `--depth 3`. For the fastest coding configuration to pass all the Pi gates use the command below.
+
+```sh
+python3.12 serve_omlx.py --dmg "$OMLX_DMG" \
+  --weights "$MODEL_DIR/omlx-oq4" --state "$PWD/inkling-oq4-state" \
+  --cache "$MODEL_DIR/inkling-oq4-cache" --depth 6 --context 65536 --slots 2
+```

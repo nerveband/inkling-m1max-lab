@@ -48,3 +48,18 @@ python3.12 direct_compare.py copy-panel.jsonl measurements/copy-a measurements/c
 ```
 
 The GGUF raw panel disables target prompt-KV reuse. In the lookup implementation, the n-gram table belongs to the server process and is shared across sequences. Each new input also trains it from the supplied prompt. Warm repeated-code measurements can use patterns carried from earlier requests. The 108.45 tok/s screen measured the first copy request after an unrelated fresh-code warmup. The separate six-copy bracket measures a warmed repeated-code workload.
+
+To reproduce the one-task aligned speed screen, launch the oQ3e finalist with a fresh cache, `--context 32768 --slots 1`, fixed depth 6 and small-batch sorting as in [REPRODUCE.md](REPRODUCE.md). The measurements used Pi 1.6.0 installed globally via npm. This prepares the model using only the published synthetic system prompt, tool definitions and two unrelated user strings. The scored Pi invocation then runs the actual edit with the original fixture checks.
+
+```sh
+export PI_PACKAGE="$(npm root -g)/@earendil-works/pi-coding-agent"
+python3.12 primed_pi.py measurements/oq3-primed
+python3.12 summary.py measurements/oq3-primed
+```
+
+For the 64K qualification, restart with a fresh cache, two slots and the sorted three-bit target, then run the following once against the loopback endpoint. The independent registry invocation takes the exact launch ID from the corresponding file in configs.
+
+```sh
+BENCH_MODEL_ID=inkling BENCH_TOKENIZER=omlx BENCH_WARM_AGENT=1 \
+  BENCH_RETRIEVAL_BUDGET=768 python3.12 qualify_llama.py measurements/oq3-64k 65536
+```

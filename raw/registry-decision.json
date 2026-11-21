@@ -6,10 +6,31 @@
       "raw": "raw/registry-64k-d6/lab-evidence.json",
       "speed": 14.8,
       "threshold": 15,
-      "passed": false
+      "passed": false,
+      "model": "oQ4e"
     }
   ],
   "repeat_one": "interrupted before a scored result",
   "repeat_two": "not started",
-  "reason": "Experiment priority moved to faster execution paths after the first full result."
+  "reason": "Experiment priority moved to faster execution paths after the first full result.",
+  "submitted_model": "oQ4e",
+  "pi_qualification": {
+    "fastest_complete": "native oQ4e, fixed DSpark depth 6",
+    "fastest_primary_edit": "native oQ3e, fixed DSpark depth 6, earlier expert sorting, shared prefix primed",
+    "three_bit_sustained": "4/6 reopened Pi turns with tools disabled",
+    "three_bit_raw": "raw/qual-oq3-d6-sort32"
+  },
+  "three_bit_registry": {
+    "passed": true,
+    "gates": {
+      "load": true,
+      "chat": true,
+      "reasoning": true,
+      "tools": true,
+      "context": true,
+      "speed": true
+    },
+    "tps": 16.4,
+    "raw": "raw/qual-oq3-d6-sort32/lab-evidence.json"
+  }
 }

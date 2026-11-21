@@ -1,0 +1,50 @@
+{
+  "id": "omlx-inkling-2-mini-oq3e-dspark6-64k-2seq-sort32",
+  "kind": "host",
+  "engine": "omlx",
+  "about": "Inkling 2 Mini oQ3e with fixed DSpark depth 6, 65,536 tokens per sequence and two configured request slots on Metal. Text validated at concurrency one. Sorts routed-expert work at 32 selected indices using a temporary model-module overlay.",
+  "command": [
+    "runtime/oMLX.app/Contents/Resources/Python/cpython-3.11/bin/python3.11",
+    "inkling-serve.py",
+    "--app",
+    "runtime/oMLX.app",
+    "--weights",
+    "models/inkling",
+    "--state",
+    "inkling-state",
+    "--cache",
+    "inkling-cache",
+    "--depth",
+    "6",
+    "--context",
+    "65536",
+    "--slots",
+    "2",
+    "--sort-small-expert-batches"
+  ],
+  "install": "Download https://github.com/jundot/omlx/releases/download/v0.8.2/oMLX-0.8.2-macos26-27.dmg (SHA-256 6316ad32cde3248bcf23abece8b9222847f7ae8e594cea1b378a34049252df78) and place its oMLX.app under runtime/ in the recipe directory. The app supplies the complete Python runtime.",
+  "env": {
+    "PYTHONPATH": "runtime/oMLX.app/Contents/Resources:runtime/oMLX.app/Contents/Resources/Python/framework-mlx-base/lib/python3.11/site-packages",
+    "HF_HOME": "hf-cache",
+    "HF_HUB_OFFLINE": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "port": 18089,
+  "weights": [
+    {
+      "repo": "mlx-community/Inkling-2-Mini-oQ3e-mtp",
+      "revision": "5552e32ec7a50fa8e9b0bfe2002aab72f8b78975",
+      "at": "models/inkling",
+      "layout": "dir",
+      "files": null
+    }
+  ],
+  "config": {
+    "at": "inkling-serve.py",
+    "text": "\"\"\"Serve the pinned oMLX recipe in the foreground with a separate state directory.\"\"\"\nimport argparse\nimport contextlib\nimport hashlib\nimport json\nimport os\nfrom pathlib import Path\nimport plistlib\nimport signal\nimport subprocess\nimport tempfile\n\nDIGEST='6316ad32cde3248bcf23abece8b9222847f7ae8e594cea1b378a34049252df78'\n\n@contextlib.contextmanager\ndef application(app,dmg):\n    if app:\n        yield app.resolve()\n        return\n    if not dmg or not dmg.is_file():\n        raise SystemExit('Supply --app or --dmg pointing at the pinned oMLX 0.8.2 release.')\n    with dmg.open('rb') as f:\n        if hashlib.file_digest(f,'sha256').hexdigest()!=DIGEST:\n            raise SystemExit('oMLX disk image SHA-256 mismatch')\n    with tempfile.TemporaryDirectory(prefix='inkling-omlx-') as folder:\n        mount=Path(folder)/'release';mount.mkdir()\n        subprocess.run(['hdiutil','attach','-readonly','-nobrowse','-mountpoint',str(mount),str(dmg.resolve())],check=True)\n        try:yield mount/'oMLX.app'\n        finally:subprocess.run(['hdiutil','detach',str(mount)],check=True)\n\ndef sorted_expert_package(resources, folder):\n    \"\"\"Shadow only the pinned model module for the small-batch expert-sort experiment.\"\"\"\n    source=resources\n    dest=folder\n    for component in ('omlx','patches','inkling2','model.py'):\n        for entry in source.iterdir():\n            if entry.name not in (component,'__pycache__'):\n                (dest/entry.name).symlink_to(entry,target_is_directory=entry.is_dir())\n        source=source/component\n        dest=dest/component\n        if source.is_dir():dest.mkdir()\n    original=source.read_text()\n    threshold='do_sort = inds.size >= 64'\n    if original.count(threshold)!=1:raise RuntimeError('Unexpected release model source')\n    dest.write_text(original.replace(threshold,'do_sort = inds.size >= 32'))\n\n\ndef main():\n    parser=argparse.ArgumentParser(description=__doc__)\n    source=parser.add_mutually_exclusive_group(required=True)\n    source.add_argument('--app',type=Path)\n    source.add_argument('--dmg',type=Path)\n    parser.add_argument('--weights',required=True,type=Path)\n    parser.add_argument('--state',required=True,type=Path)\n    parser.add_argument('--cache',required=True,type=Path)\n    parser.add_argument('--context',type=int,default=32768)\n    parser.add_argument('--depth',type=int,default=6)\n    parser.add_argument('--slots',type=int,choices=(1,2),default=1)\n    parser.add_argument('--sort-small-expert-batches',action='store_true',help='Experimentally sort expert work at 32 indices instead of 64.')\n    args=parser.parse_args()\n    weights,state,cache=(p.expanduser().resolve() for p in (args.weights,args.state,args.cache))\n    if not (weights/'mtp.safetensors').is_file():\n        raise SystemExit('The native oQ4e target directory must include mtp.safetensors.')\n    marker=state/'inkling-lab-state'\n    if state.exists() and not marker.is_file():\n        raise SystemExit('Choose a new state directory or reuse one created by this launcher.')\n    state.mkdir(parents=True,exist_ok=True);marker.touch()\n    models=state/'models';models.mkdir(exist_ok=True)\n    link=models/'inkling'\n    if not link.is_symlink():link.symlink_to(weights,target_is_directory=True)\n    if link.resolve()!=weights:raise SystemExit('State belongs to another weights directory.')\n    cache.mkdir(parents=True,exist_ok=True)\n    config={'mtp_enabled':args.depth>0,'max_context_window':args.context}\n    if args.depth:config['mtp_fixed_depth']=args.depth\n    (state/'model_settings.json').write_text(json.dumps({'version':2,'models':{'inkling':config}},indent=2)+'\\n')\n    with application(args.app,args.dmg) as app, tempfile.TemporaryDirectory(prefix='inkling-kernel-') as overlay:\n        contents=app/'Contents'\n        with (contents/'Info.plist').open('rb') as f:\n            if plistlib.load(f)['CFBundleShortVersionString']!='0.8.2':raise SystemExit('Expected oMLX 0.8.2.')\n        resources=contents/'Resources';py=resources/'Python'\n        modules=os.pathsep.join(map(str,(resources,py/'framework-mlx-base/lib/python3.11/site-packages')))\n        if args.sort_small_expert_batches:\n            sorted_expert_package(resources,Path(overlay))\n            modules=overlay+os.pathsep+modules\n        environment=dict(os.environ,PYTHONPATH=modules,HF_HUB_OFFLINE='1',HF_HOME=str(cache/'hub'),PYTHONDONTWRITEBYTECODE='1')\n        command=[str(py/'cpython-3.11/bin/python3.11'),'-m','omlx.cli','serve','--base-path',str(state),'--model-dir',str(models),'--host','127.0.0.1','--port','18089','--max-concurrent-requests',str(args.slots),'--headless','--paged-ssd-cache-dir',str(cache/'kv'),'--paged-ssd-cache-max-size','2GB','--hot-cache-max-size','1GB']\n        with subprocess.Popen(command,env=environment,start_new_session=True) as server:\n            def stop(*_):\n                if server.poll() is None:server.terminate()\n            previous={s:signal.signal(s,stop) for s in (signal.SIGINT,signal.SIGTERM)}\n            try:return server.wait()\n            finally:\n                for s,handler in previous.items():signal.signal(s,handler)\n                stop()\n\nif __name__=='__main__':raise SystemExit(main())\n"
+  },
+  "ctx": 65536,
+  "seqs": 2,
+  "vision": false,
+  "backend": "metal"
+}

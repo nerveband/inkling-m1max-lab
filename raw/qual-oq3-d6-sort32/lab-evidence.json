@@ -1,0 +1,78 @@
+{
+ "recipe": {
+  "model": "inkling-2-mini",
+  "weights": "mlx-community/Inkling-2-Mini-oQ3e-mtp@5552e32ec7a50fa8e9b0bfe2002aab72f8b78975",
+  "engine": "omlx-inkling-2-mini-oq3e-dspark6-64k-2seq-sort32@9327cf8e8c31",
+  "set": {},
+  "card": "apple-m1-max-64gb"
+ },
+ "where": {
+  "on": "owner",
+  "gpu": "Apple M1 Max (24-core GPU, 64 GiB)"
+ },
+ "passed": true,
+ "proof": {
+  "at": "2026-11-21",
+  "on": "owner",
+  "gpu": "Apple M1 Max (24-core GPU, 64 GiB)",
+  "launch_sha256": "29c844ca2c5caabc3181cff05ad5843d85932452cdc18e22dc5d5250d05ae36f",
+  "gates": "load chat reasoning tools context speed",
+  "tps": 16.4,
+  "prefill": 237,
+  "served": "inkling"
+ },
+ "evidence": {
+  "ok": {
+   "load": true,
+   "chat": true,
+   "reasoning": true,
+   "tools": true,
+   "context": true,
+   "speed": true
+  },
+  "spec": null,
+  "chat": {
+   "content": "red, yellow, blue",
+   "finish": "stop"
+  },
+  "reasoning": {
+   "thinking_chars": 112,
+   "content": "391"
+  },
+  "tools": {
+   "call": [
+    {
+     "id": "call_c2ecd6bf",
+     "type": "function",
+     "function": {
+      "name": "get_weather",
+      "arguments": "{\"city\":\"Paris\"}"
+     }
+    }
+   ],
+   "reply": "Paris is currently 17°C with overcast skies. The code the tool returned is: 0a0460d1",
+   "code": "0a0460d1",
+   "finish": "stop",
+   "calls_again": 0,
+   "thinking_chars": 612
+  },
+  "context": {
+   "prompt_tokens": 45470,
+   "seconds": 192.1,
+   "content": "58213"
+  },
+  "speed": {
+   "window_s": 30.1,
+   "tokens_in_window": 493,
+   "tokens_total": 1430,
+   "seconds_total": 104.5,
+   "counted": "tokenizer",
+   "accounting": "client tokens over the first 30 s after the first token; speculative drafts are not counted as accepted"
+  },
+  "prefill": {
+   "value": 237,
+   "source": "context gate: prompt tokens / the whole request's seconds (queue + prefill + the short answer), cold unique filler"
+  }
+ },
+ "launch_config_sha256": "40f0a116db6cec2194c0045a3ddce9a53d5636d6f32f4fa3973c572658b19dd5"
+}

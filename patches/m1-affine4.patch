@@ -1,0 +1,32 @@
+--- a/omlx/patches/inkling2/model.py
++++ b/omlx/patches/inkling2/model.py
+@@ -916,0 +917,26 @@
++        for layer, module in enumerate(self.model.layers):
++            experts = module.mlp.experts
++            for which in ("w13", "w2"):
++                old = getattr(experts, which)
++                if old.mode != "nvfp4":
++                    continue
++                key = f"model.layers.{layer}.mlp.experts.{which}."
++                packed, factors = out[key + "weight"], out[key + "scales"]
++                outer = out.pop(key + "global_scale").astype(mx.float32) / _NVFP4_DENOMINATOR
++                parts = [[], [], []]
++                for start in range(0, packed.shape[0], 16):
++                    sl = slice(start, start + 16)
++                    values = mx.dequantize(packed[sl], factors[sl], group_size=16, bits=4, mode="nvfp4", dtype=mx.float32)
++                    values = (values * outer[sl, None, None]).astype(mx.bfloat16)
++                    q, scales, biases = mx.quantize(values, group_size=64, bits=4, mode="affine")
++                    mx.eval(q, scales, biases)
++                    for bucket, value in zip(parts, (q, scales, biases)):
++                        bucket.append(value)
++                tensors = [mx.concatenate(bucket) for bucket in parts]
++                mx.eval(*tensors)
++                for field, value in zip(("weight", "scales", "biases"), tensors):
++                    out[key + field] = value
++                replaced = ExpertProj(packed.shape[0], packed.shape[1], packed.shape[2] * 8, {"mode":"affine","group_size":64,"bits":4})
++                setattr(experts, which, replaced)
++                mx.clear_cache()
++        print("BENCH affine expert conversion complete", flush=True)
+@@ -934,0 +961,2 @@
++
++print("BENCH loaded isolated Inkling module: affine4", flush=True)
