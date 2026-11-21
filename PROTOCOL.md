@@ -25,3 +25,12 @@ python3 run.py dspark-6 measurements/qual32 python3 qualify_llama.py measurement
 ```
 
 Cold readiness starts before process launch and ends at the first successful readiness response. For lazy MLX loads, retain the first request's model-load duration separately. A fresh process may read weights from a warm filesystem cache. Prefill on a new prefix, a warmed model, and a prefix-cache hit are recorded separately. The three-point half/full-context tests require an exact ordered answer. The sustained tests use one accumulating HTTP conversation and a separate Pi session reopened by its session ID.
+
+For the oMLX Pi bracket, each trial uses a fresh model server and a new experiment-only KV directory. A 32-ID unrelated request warms inference before each task. The actual Pi first request must report zero cached IDs. This prevents the next trial from benefiting from a completed copy of the same task while preserving genuine within-task prefix hits. The first whole trial in each leg is excluded. With OMLX_APP pointing at the mounted release bundle:
+
+```sh
+python3.12 omlx_leg.py --weights "$MODEL_DIR/omlx-oq4" --cache-root "$MODEL_DIR/transient-kv" --depth 0 measurements/oq-a
+python3.12 omlx_leg.py --weights "$MODEL_DIR/omlx-oq4" --cache-root "$MODEL_DIR/transient-kv" --depth 3 measurements/oq-b
+python3.12 omlx_leg.py --weights "$MODEL_DIR/omlx-oq4" --cache-root "$MODEL_DIR/transient-kv" --depth 0 measurements/oq-c
+python3.12 compare.py measurements/oq-a measurements/oq-b measurements/oq-c
+```

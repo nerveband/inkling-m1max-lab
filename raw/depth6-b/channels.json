@@ -1,0 +1,247 @@
+{
+  "pi-0": [
+    {
+      "reasoning_retokenized": 8,
+      "visible_retokenized": 0,
+      "tools": [
+        "read"
+      ]
+    },
+    {
+      "reasoning_retokenized": 20,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "edit"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 11,
+      "visible_retokenized": 3,
+      "tools": []
+    }
+  ],
+  "pi-1": [
+    {
+      "reasoning_retokenized": 8,
+      "visible_retokenized": 0,
+      "tools": [
+        "read"
+      ]
+    },
+    {
+      "reasoning_retokenized": 20,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "edit"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 11,
+      "visible_retokenized": 3,
+      "tools": []
+    }
+  ],
+  "pi-2": [
+    {
+      "reasoning_retokenized": 8,
+      "visible_retokenized": 0,
+      "tools": [
+        "read"
+      ]
+    },
+    {
+      "reasoning_retokenized": 20,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "edit"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 11,
+      "visible_retokenized": 3,
+      "tools": []
+    }
+  ],
+  "pi-3": [
+    {
+      "reasoning_retokenized": 8,
+      "visible_retokenized": 0,
+      "tools": [
+        "read"
+      ]
+    },
+    {
+      "reasoning_retokenized": 20,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "edit"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 11,
+      "visible_retokenized": 3,
+      "tools": []
+    }
+  ],
+  "pi-4": [
+    {
+      "reasoning_retokenized": 8,
+      "visible_retokenized": 0,
+      "tools": [
+        "read"
+      ]
+    },
+    {
+      "reasoning_retokenized": 20,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "edit"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 11,
+      "visible_retokenized": 3,
+      "tools": []
+    }
+  ],
+  "pi-5": [
+    {
+      "reasoning_retokenized": 8,
+      "visible_retokenized": 0,
+      "tools": [
+        "read"
+      ]
+    },
+    {
+      "reasoning_retokenized": 20,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "edit"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 11,
+      "visible_retokenized": 3,
+      "tools": []
+    }
+  ],
+  "pi-6": [
+    {
+      "reasoning_retokenized": 8,
+      "visible_retokenized": 0,
+      "tools": [
+        "read"
+      ]
+    },
+    {
+      "reasoning_retokenized": 20,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "edit"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 11,
+      "visible_retokenized": 3,
+      "tools": []
+    }
+  ]
+}

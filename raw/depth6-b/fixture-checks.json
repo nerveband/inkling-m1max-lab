@@ -1,0 +1,142 @@
+{
+  "pi-0": {
+    "passed": true,
+    "checks": {
+      "exit_ok": true,
+      "ordered_tools": true,
+      "tools_ok": true,
+      "exact_diff": true,
+      "test_ok": true,
+      "answer_ok": true
+    },
+    "tools": [
+      "read",
+      "bash",
+      "edit",
+      "bash"
+    ],
+    "test_exit": 0,
+    "expected_final": "PATCH VERIFIED",
+    "final_exact": true
+  },
+  "pi-1": {
+    "passed": true,
+    "checks": {
+      "exit_ok": true,
+      "ordered_tools": true,
+      "tools_ok": true,
+      "exact_diff": true,
+      "test_ok": true,
+      "answer_ok": true
+    },
+    "tools": [
+      "read",
+      "bash",
+      "edit",
+      "bash"
+    ],
+    "test_exit": 0,
+    "expected_final": "PATCH VERIFIED",
+    "final_exact": true
+  },
+  "pi-2": {
+    "passed": true,
+    "checks": {
+      "exit_ok": true,
+      "ordered_tools": true,
+      "tools_ok": true,
+      "exact_diff": true,
+      "test_ok": true,
+      "answer_ok": true
+    },
+    "tools": [
+      "read",
+      "bash",
+      "edit",
+      "bash"
+    ],
+    "test_exit": 0,
+    "expected_final": "PATCH VERIFIED",
+    "final_exact": true
+  },
+  "pi-3": {
+    "passed": true,
+    "checks": {
+      "exit_ok": true,
+      "ordered_tools": true,
+      "tools_ok": true,
+      "exact_diff": true,
+      "test_ok": true,
+      "answer_ok": true
+    },
+    "tools": [
+      "read",
+      "bash",
+      "edit",
+      "bash"
+    ],
+    "test_exit": 0,
+    "expected_final": "PATCH VERIFIED",
+    "final_exact": true
+  },
+  "pi-4": {
+    "passed": true,
+    "checks": {
+      "exit_ok": true,
+      "ordered_tools": true,
+      "tools_ok": true,
+      "exact_diff": true,
+      "test_ok": true,
+      "answer_ok": true
+    },
+    "tools": [
+      "read",
+      "bash",
+      "edit",
+      "bash"
+    ],
+    "test_exit": 0,
+    "expected_final": "PATCH VERIFIED",
+    "final_exact": true
+  },
+  "pi-5": {
+    "passed": true,
+    "checks": {
+      "exit_ok": true,
+      "ordered_tools": true,
+      "tools_ok": true,
+      "exact_diff": true,
+      "test_ok": true,
+      "answer_ok": true
+    },
+    "tools": [
+      "read",
+      "bash",
+      "edit",
+      "bash"
+    ],
+    "test_exit": 0,
+    "expected_final": "PATCH VERIFIED",
+    "final_exact": true
+  },
+  "pi-6": {
+    "passed": true,
+    "checks": {
+      "exit_ok": true,
+      "ordered_tools": true,
+      "tools_ok": true,
+      "exact_diff": true,
+      "test_ok": true,
+      "answer_ok": true
+    },
+    "tools": [
+      "read",
+      "bash",
+      "edit",
+      "bash"
+    ],
+    "test_exit": 0,
+    "expected_final": "PATCH VERIFIED",
+    "final_exact": true
+  }
+}

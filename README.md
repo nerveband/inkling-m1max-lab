@@ -10,3 +10,5 @@ python3 run.py plain measurements/direct python3 direct.py measurements/direct/2
 ```
 
 The agent selects provider inkling-local and model inkling. A temporary Pi configuration points exclusively at the local measurement proxy on port 18090. The proxy forwards completions to the server on 127.0.0.1:18089. Private job traces and absolute paths stay outside the published measurement set. Use a new measurement directory for each run.
+
+See [REPRODUCE.md](REPRODUCE.md) for the pinned downloads, foreground oMLX launch and normal Pi provider. [PROTOCOL.md](PROTOCOL.md) explains the fixture and timing boundaries.

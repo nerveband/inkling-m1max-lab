@@ -8,6 +8,12 @@ def extract(source):
     for f in root.iterdir():
         if f.name in ('ready.json','monitor.jsonl','direct-0.json','direct-1.json','soak.json','reasoning.json','divergence.json','pi-session.json') or f.suffix=='.jsonl' and f.name in ('2k.jsonl','8k.jsonl','small.jsonl','needles.jsonl') or f.name.endswith(('-copy.json','-fresh.json')):
             (dst/f.name).write_bytes(f.read_bytes())
+    checks={}
+    for scorefile in sorted(root.glob('pi*/score.json')):
+        row=json.loads(scorefile.read_text())
+        expected='CHECK COMPLETE' if 'held' in scorefile.parent.name else 'PATCH VERIFIED'
+        checks[scorefile.parent.name]=dict(passed=row['passed'],checks=row.get('checks'),tools=row['tools'],test_exit=row['test'],expected_final=expected,final_exact=row['answer']==expected)
+    if checks:(dst/'fixture-checks.json').write_text(json.dumps(checks,indent=2)+'\n')
     scores=summarize(root)
     if scores: (dst/'pi-scores.json').write_text(json.dumps(scores,indent=2)+'\n')
     return scores

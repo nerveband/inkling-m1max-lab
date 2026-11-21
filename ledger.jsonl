@@ -29,3 +29,12 @@
 {"date": "2026-11-21", "experiment": "vlm-ready-off", "config": "NetProjects original draft off", "raw": "raw/vlm-ready-off"}
 {"date": "2026-11-21", "experiment": "mlx-final-fixture", "config": "patched mlx-lm 4bit", "raw": "raw/mlx-final-fixture"}
 {"date": "2026-11-21", "experiment": "release-oq4-fixed3-32k", "config": "published oMLX 0.8.2 disk image, fixed 3 + prefix cache", "raw": "raw/release-oq4-fixed3-32k"}
+{"date": "2026-11-21", "experiment": "app-oq4-fixed3-warm", "config": "official 0.8.2, one slot, fixed 3 warm screen", "raw": "raw/app-oq4-fixed3-warm"}
+{"date": "2026-11-21", "experiment": "app-oq4-fixed3-128k", "config": "official fixed 3, 128K full preflight refusal", "raw": "raw/app-oq4-fixed3-128k"}
+{"date": "2026-11-21", "experiment": "app-oq4-fixed3-direct", "config": "official fixed 3, matched 2K/8K, native cycle clocks", "raw": "raw/app-oq4-fixed3-direct"}
+{"date": "2026-11-21", "experiment": "vlm-ready-draft", "config": "NetProjects original, matched head, block 4", "raw": "raw/vlm-ready-draft"}
+{"date": "2026-11-21", "experiment": "vlm-affine-off", "config": "NetProjects 4-bit affine, draft off", "raw": "raw/vlm-affine-off"}
+{"date": "2026-11-21", "experiment": "vlm-affine-draft", "config": "NetProjects 4-bit affine, block 4", "raw": "raw/vlm-affine-draft"}
+{"date": "2026-11-21", "experiment": "oq-control-a", "command": "python3.12 omlx_leg.py --weights WEIGHTS --cache-root CACHE --depth 0 RUN", "scored": 6, "passed": 6, "median_tps": 23.8255033557047, "median_wall_s": 18.267054291500244, "raw": "raw/oq-control-a"}
+{"date": "2026-11-21", "experiment": "oq-fixed3-b", "command": "python3.12 omlx_leg.py --weights WEIGHTS --cache-root CACHE --depth 3 RUN", "scored": 6, "passed": 6, "median_tps": 33.729237296635844, "median_wall_s": 15.770983645499655, "raw": "raw/oq-fixed3-b"}
+{"date": "2026-11-21", "experiment": "oq-control-c", "command": "python3.12 omlx_leg.py --weights WEIGHTS --cache-root CACHE --depth 0 RUN", "scored": 6, "passed": 6, "median_tps": 23.825533166090075, "median_wall_s": 18.31576879200111, "raw": "raw/oq-control-c"}

@@ -27,7 +27,16 @@ def lock():
 def reason(s,base,pid):
     pressure,swap,ac,_,clients=s
     if pressure!=1 or swap>base[1] or not ac: return 'pressure, swap growth or AC loss'
-    if any(v>base[4].get(p,0) for p,v in clients.items() if p!=pid): return 'competing inference GPU activity'
+    other=[p for p,v in clients.items() if p!=pid and v>base[4].get(p,0)]
+    if other and pid:
+        # A foreground launcher can own a child inference process. Only
+        # processes descending from this exact server PID belong to the job.
+        parents={int(row[0]):int(row[1]) for line in cmd('ps','-axo','pid=,ppid=').splitlines() if len(row:=line.split())==2}
+        def owned(process):
+            while process>1 and process!=pid:process=parents.get(process,0)
+            return process==pid
+        other=[p for p in other if not owned(p)]
+    if other:return 'competing inference GPU activity'
 
 def guarded(server,job,private,port=18089,ready_path='/health',ready_field=None):
     import urllib.request

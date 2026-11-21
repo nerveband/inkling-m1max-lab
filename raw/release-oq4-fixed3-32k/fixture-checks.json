@@ -1,0 +1,24 @@
+{
+  "pi-held": {
+    "passed": false,
+    "checks": {
+      "exit_ok": true,
+      "ordered_tools": true,
+      "tools_ok": false,
+      "exact_diff": true,
+      "test_ok": true,
+      "answer_ok": true
+    },
+    "tools": [
+      "read",
+      "bash",
+      "bash",
+      "bash",
+      "edit",
+      "bash"
+    ],
+    "test_exit": 0,
+    "expected_final": "CHECK COMPLETE",
+    "final_exact": true
+  }
+}

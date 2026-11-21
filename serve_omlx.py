@@ -1,0 +1,74 @@
+"""Serve the pinned oMLX recipe in the foreground with a separate state directory."""
+import argparse
+import contextlib
+import hashlib
+import json
+import os
+from pathlib import Path
+import plistlib
+import signal
+import subprocess
+import tempfile
+
+DIGEST='6316ad32cde3248bcf23abece8b9222847f7ae8e594cea1b378a34049252df78'
+
+@contextlib.contextmanager
+def application(app,dmg):
+    if app:
+        yield app.resolve()
+        return
+    if not dmg or not dmg.is_file():
+        raise SystemExit('Supply --app or --dmg pointing at the pinned oMLX 0.8.2 release.')
+    with dmg.open('rb') as f:
+        if hashlib.file_digest(f,'sha256').hexdigest()!=DIGEST:
+            raise SystemExit('oMLX disk image SHA-256 mismatch')
+    with tempfile.TemporaryDirectory(prefix='inkling-omlx-') as folder:
+        mount=Path(folder)/'release';mount.mkdir()
+        subprocess.run(['hdiutil','attach','-readonly','-nobrowse','-mountpoint',str(mount),str(dmg.resolve())],check=True)
+        try:yield mount/'oMLX.app'
+        finally:subprocess.run(['hdiutil','detach',str(mount)],check=True)
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    source=parser.add_mutually_exclusive_group(required=True)
+    source.add_argument('--app',type=Path)
+    source.add_argument('--dmg',type=Path)
+    parser.add_argument('--weights',required=True,type=Path)
+    parser.add_argument('--state',required=True,type=Path)
+    parser.add_argument('--cache',required=True,type=Path)
+    parser.add_argument('--context',type=int,default=32768)
+    parser.add_argument('--depth',type=int,default=3)
+    args=parser.parse_args()
+    weights,state,cache=(p.expanduser().resolve() for p in (args.weights,args.state,args.cache))
+    if not (weights/'mtp.safetensors').is_file():
+        raise SystemExit('The native oQ4e target directory must include mtp.safetensors.')
+    marker=state/'inkling-lab-state'
+    if state.exists() and not marker.is_file():
+        raise SystemExit('Choose a new state directory or reuse one created by this launcher.')
+    state.mkdir(parents=True,exist_ok=True);marker.touch()
+    models=state/'models';models.mkdir(exist_ok=True)
+    link=models/'inkling'
+    if not link.is_symlink():link.symlink_to(weights,target_is_directory=True)
+    if link.resolve()!=weights:raise SystemExit('State belongs to another weights directory.')
+    cache.mkdir(parents=True,exist_ok=True)
+    config={'mtp_enabled':args.depth>0,'max_context_window':args.context}
+    if args.depth:config['mtp_fixed_depth']=args.depth
+    (state/'model_settings.json').write_text(json.dumps({'version':2,'models':{'inkling':config}},indent=2)+'\n')
+    with application(args.app,args.dmg) as app:
+        contents=app/'Contents'
+        with (contents/'Info.plist').open('rb') as f:
+            if plistlib.load(f)['CFBundleShortVersionString']!='0.8.2':raise SystemExit('Expected oMLX 0.8.2.')
+        resources=contents/'Resources';py=resources/'Python'
+        modules=os.pathsep.join(map(str,(resources,py/'framework-mlx-base/lib/python3.11/site-packages')))
+        environment=dict(os.environ,PYTHONPATH=modules,HF_HUB_OFFLINE='1',HF_HOME=str(cache/'hub'),PYTHONDONTWRITEBYTECODE='1')
+        command=[str(py/'cpython-3.11/bin/python3.11'),'-m','omlx.cli','serve','--base-path',str(state),'--model-dir',str(models),'--host','127.0.0.1','--port','18089','--max-concurrent-requests','1','--headless','--paged-ssd-cache-dir',str(cache/'kv'),'--paged-ssd-cache-max-size','2GB','--hot-cache-max-size','1GB']
+        with subprocess.Popen(command,env=environment,start_new_session=True) as server:
+            def stop(*_):
+                if server.poll() is None:server.terminate()
+            previous={s:signal.signal(s,stop) for s in (signal.SIGINT,signal.SIGTERM)}
+            try:return server.wait()
+            finally:
+                for s,handler in previous.items():signal.signal(s,handler)
+                stop()
+
+if __name__=='__main__':raise SystemExit(main())
