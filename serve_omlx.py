@@ -37,7 +37,7 @@ def main():
     parser.add_argument('--state',required=True,type=Path)
     parser.add_argument('--cache',required=True,type=Path)
     parser.add_argument('--context',type=int,default=32768)
-    parser.add_argument('--depth',type=int,default=3)
+    parser.add_argument('--depth',type=int,default=6)
     parser.add_argument('--slots',type=int,choices=(1,2),default=1)
     args=parser.parse_args()
     weights,state,cache=(p.expanduser().resolve() for p in (args.weights,args.state,args.cache))

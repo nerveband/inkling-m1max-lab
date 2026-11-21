@@ -36,3 +36,13 @@ python3.12 compare.py measurements/oq-a measurements/oq-b measurements/oq-c
 ```
 
 For a direct-provider smoke test, run an isolated server first. With `BENCH_BYPASS_PROXY=1`, the fixture invokes the normal Pi provider on port 18089. Add `--stock-provider` to remove the benchmark extension. That check uses the standard Pi request, a disposable worktree and the same independent diff, test and final-answer assertions. Reserve it for the synthetic fixture. Its timings are outside the controlled leaderboard.
+
+For the decoded-ID copy comparison, set `BENCH_VISIBLE=1`, `MODEL_DIR` and `LLAMA_SERVER`. Run these in order from the checkout, using new directories. Each leg uses one 64-ID warmup and six independently tokenized 2,048-ID copy inputs with 256 output IDs requested. The second argument to `direct_compare.py` is the first leg’s directory.
+
+```sh
+export BENCH_VISIBLE=1
+python3.12 run.py plain measurements/copy-a python3.12 copy_panel.py measurements/copy-a
+python3.12 run.py lookup256-dspark6 measurements/copy-b python3.12 copy_panel.py measurements/copy-b
+python3.12 run.py plain measurements/copy-c python3.12 copy_panel.py measurements/copy-c
+python3.12 direct_compare.py copy-panel.jsonl measurements/copy-a measurements/copy-b measurements/copy-c
+```

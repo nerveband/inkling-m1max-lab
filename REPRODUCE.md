@@ -17,7 +17,7 @@ Set MODEL_DIR to the external models directory and OMLX_DMG to the release image
 ```sh
 python3.12 serve_omlx.py --dmg "$OMLX_DMG" \
   --weights "$MODEL_DIR/omlx-oq4" --state "$PWD/inkling-omlx-state" \
-  --cache "$MODEL_DIR/inkling-agent-cache" --depth 3 --context 32768
+  --cache "$MODEL_DIR/inkling-agent-cache" --depth 6 --context 32768
 ```
 
 Leave this process running in its terminal. Ctrl-C stops its server and releases its mount. The first request loads the weights. On the published prefill/qualification runs, the hot-cache cap was 1 GB and the SSD-cache cap 2 GB. One request ran at a time.
@@ -35,7 +35,7 @@ pi --offline --provider inkling-local --model inkling --thinking off \
 
 The optional greedy extension sets temperature 0, seed 17 and a 512-ID output budget for this provider. It leaves Pi’s normal tools and system prompt intact. Omit the extension to use the ordinary provider defaults.
 
-The 65,536-token qualification used two configured request slots and one active request. To reproduce it, use `--context 65536 --slots 2` in the foreground command and copy `configs/pi-direct-64k.json` as the disposable agent's `models.json`. At fixed depth 3, the exact ordered retrieval test submitted 31,954 and 64,717 input IDs and reserved 768 output IDs. Pi still used 512 IDs per response. The benchmark and the registry tested one active stream.
+The 65,536-token qualification used two configured request slots and one active request. To reproduce it, use `--context 65536 --slots 2` in the foreground command and copy `configs/pi-direct-64k.json` as the disposable agent's `models.json`. At fixed depths 3 and 6, the exact ordered retrieval test submitted 31,954 and 64,717 input IDs and reserved 768 output IDs. Pi still used 512 IDs per response. The benchmark and the registry tested one active stream.
 
 ## GGUF controls
 

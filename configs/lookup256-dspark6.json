@@ -1,0 +1,15 @@
+{
+  "draft": "dspark-Inkling-2-Mini-Q8_0.gguf",
+  "args": [
+    "--spec-type",
+    "ngram-mod,draft-dspark",
+    "--spec-ngram-mod-n-match",
+    "12",
+    "--spec-ngram-mod-n-min",
+    "1",
+    "--spec-ngram-mod-n-max",
+    "256",
+    "--spec-draft-n-max",
+    "6"
+  ]
+}
