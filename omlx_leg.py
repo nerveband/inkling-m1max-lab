@@ -14,6 +14,8 @@ if __name__=='__main__':
     p.add_argument('--cache-root',type=pathlib.Path,required=True)
     p.add_argument('--depth',type=int,required=True)
     p.add_argument('--context',type=int,default=32768)
+    p.add_argument('--m1-fast',action='store_true')
+    p.add_argument('--affine4',action='store_true')
     p.add_argument('results',type=pathlib.Path)
     a=p.parse_args()
     root=pathlib.Path(__file__).resolve().parent
@@ -24,7 +26,10 @@ if __name__=='__main__':
     for i in range(7):
         trial=target/f'trial-{i}'
         with tempfile.TemporaryDirectory(prefix='inkling-kv-',dir=cache_root) as scratch:
-            command=[sys.executable,'-u',str(root/'omlx_run.py'),'--weights',str(a.weights.resolve()),'--state',str(target/f'state-{i}'),'--cache',str(pathlib.Path(scratch)/'blocks'),'--context',str(a.context),'--depth',str(a.depth),'--job','single',str(trial)]
+            command=[sys.executable,'-u',str(root/'omlx_run.py'),'--weights',str(a.weights.resolve()),'--state',str(target/f'state-{i}'),'--cache',str(pathlib.Path(scratch)/'blocks'),'--context',str(a.context),'--depth',str(a.depth),'--job','single']
+            if a.m1_fast:command.append('--m1-fast')
+            if a.affine4:command.append('--affine4')
+            command.append(str(trial))
             subprocess.run(command,check=True)
         row=summarize(trial)[0]
         if row['turns'][0]['usage']['prompt_tokens_details']['cached_tokens']!=0:

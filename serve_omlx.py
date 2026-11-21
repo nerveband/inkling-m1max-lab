@@ -57,6 +57,8 @@ def main():
     parser.add_argument('--depth',type=int,default=6)
     parser.add_argument('--slots',type=int,choices=(1,2),default=1)
     parser.add_argument('--sort-small-expert-batches',action='store_true',help='Experimentally sort expert work at 32 indices instead of 64.')
+    parser.add_argument('--m1-fast',action='store_true',help='Enable verified M1 Max fused decode, verify attention, and prefill optimizations.')
+    parser.add_argument('--affine4',action='store_true',help='Convert NVFP4 experts to affine 4-bit (group size 64) at load time.')
     args=parser.parse_args()
     weights,state,cache=(p.expanduser().resolve() for p in (args.weights,args.state,args.cache))
     if not (weights/'mtp.safetensors').is_file():
@@ -79,7 +81,13 @@ def main():
             if plistlib.load(f)['CFBundleShortVersionString']!='0.8.2':raise SystemExit('Expected oMLX 0.8.2.')
         resources=contents/'Resources';py=resources/'Python'
         modules=os.pathsep.join(map(str,(resources,py/'framework-mlx-base/lib/python3.11/site-packages')))
-        if args.sort_small_expert_batches:
+        if args.m1_fast or args.affine4:
+            from m1_overlay import M1_FAST_FEATURES, PATCHES, build_overlay
+            feats=set(M1_FAST_FEATURES) if args.m1_fast else set()
+            if args.affine4:feats.add('affine4')
+            build_overlay(Path(overlay),feats,resources)
+            modules=os.pathsep.join((overlay,str(PATCHES),modules))
+        elif args.sort_small_expert_batches:
             sorted_expert_package(resources,Path(overlay))
             modules=overlay+os.pathsep+modules
         environment=dict(os.environ,PYTHONPATH=modules,HF_HUB_OFFLINE='1',HF_HOME=str(cache/'hub'),PYTHONDONTWRITEBYTECODE='1')

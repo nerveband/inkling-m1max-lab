@@ -1,0 +1,18 @@
+{
+  "qual_32k": {
+    "samples": 248,
+    "max_pressure": 1,
+    "initial_swap_mib": 3596.75,
+    "max_swap_mib": 3596.75,
+    "max_gpu_gb": 32.064,
+    "max_rss_gib": 8.344
+  },
+  "needle_64k": {
+    "ready_seconds": 6.522,
+    "samples": 261,
+    "max_pressure": 1,
+    "initial_swap_mib": 3588.75,
+    "max_swap_mib": 3588.75,
+    "max_gpu_gb": 41.278
+  }
+}

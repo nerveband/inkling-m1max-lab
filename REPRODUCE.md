@@ -1,10 +1,25 @@
-# Reproduce the local serving setup
+# How to Reproduce Every Benchmark and Serving Setup
 
-The hardware was a 24-core GPU M1 Max with 64 GiB of unified memory on macOS 27.0.1. Use Python 3.12 and Pi 1.6.0. All benchmark work fits a single local endpoint. The synthetic agent configuration and normal Pi selection use the same model alias.
+Every test below runs on a 24-core Apple M1 Max with 64 GiB of unified memory on macOS 27.0.1. Use Python 3.12 and Pi 1.6.0.
 
-## Fast Pi launch
+All paths below use environment variables so anyone can run these steps on their own machine:
 
-Get the macOS 26/27 disk image from the [oMLX 0.8.2 release](https://github.com/jundot/omlx/releases/tag/v0.8.2). Its SHA-256 is 6316ad32cde3248bcf23abece8b9222847f7ae8e594cea1b378a34049252df78. The launcher can mount it read-only and detach on exit. The speed finalist uses the complete oQ3e target and bundled `mtp.safetensors`. Download its pinned revision to the external volume. [Native oQ3e target](https://huggingface.co/mlx-community/Inkling-2-Mini-oQ3e-mtp/tree/5552e32ec7a50fa8e9b0bfe2002aab72f8b78975)
+- Set `MODEL_DIR` to the folder holding your model directories.
+- Set `OMLX_DMG` to your downloaded `oMLX-0.8.2-macos26-27.dmg` disk image.
+- Run commands from the root of this `inkling-m1max-lab` checkout.
+
+## Download the runtime and weights
+
+1. Download the macOS 26/27 disk image from the [oMLX 0.8.2 release](https://github.com/jundot/omlx/releases/tag/v0.8.2). Its SHA-256 checksum must match `6316ad32cde3248bcf23abece8b9222847f7ae8e594cea1b378a34049252df78`.
+2. Download the pinned 4-bit `oQ4e-MTP` weights (`3eea042751cd296b7266628a8342c1749242e1fe`):
+
+```sh
+hf download mlx-community/Inkling-2-Mini-oQ4e-mtp \
+  --revision 3eea042751cd296b7266628a8342c1749242e1fe \
+  --local-dir "$MODEL_DIR/omlx-oq4"
+```
+
+3. For 3-bit comparison tests, download the pinned `oQ3e-MTP` weights (`5552e32ec7a50fa8e9b0bfe2002aab72f8b78975`):
 
 ```sh
 hf download mlx-community/Inkling-2-Mini-oQ3e-mtp \
@@ -12,20 +27,33 @@ hf download mlx-community/Inkling-2-Mini-oQ3e-mtp \
   --local-dir "$MODEL_DIR/omlx-oq3"
 ```
 
-Set MODEL_DIR to the external models directory and OMLX_DMG to the release image. Run this command from the experiment checkout.
+## Start the promoted 4-bit M1 Max server
+
+Affine 4-bit is a 4-bit number format with scale and offset weights. The `--m1-fast` flag turns on our Metal kernels from [m1_overlay.py](m1_overlay.py).
+
+To start the promoted server in a terminal on port `18089`, run:
+
+```sh
+python3.12 serve_omlx.py --dmg "$OMLX_DMG" \
+  --weights "$MODEL_DIR/omlx-oq4" --state "$PWD/inkling-m1-oq4-state" \
+  --cache "$PWD/inkling-m1-oq4-kv" --depth 6 --context 65536 --slots 1 \
+  --m1-fast --affine4
+```
+
+Leave that terminal open while testing. Press `Ctrl-C` to stop the server and detach the disk image.
+
+To test the 3-bit `oQ3e` speed setup (`49.38 tok/s` direct Pi), point `--weights` at `omlx-oq3`, set `--context 32768`, and drop `--affine4`:
 
 ```sh
 python3.12 serve_omlx.py --dmg "$OMLX_DMG" \
   --weights "$MODEL_DIR/omlx-oq3" --state "$PWD/inkling-oq3-state" \
-  --cache "$MODEL_DIR/inkling-oq3-cache" --depth 6 --context 65536 --slots 2 \
-  --sort-small-expert-batches
+  --cache "$PWD/inkling-oq3-kv" --depth 6 --context 32768 --slots 1 \
+  --m1-fast
 ```
 
-Leave this process running in its terminal. Ctrl-C stops its server and releases its mount. The first request loads the weights. On the published prefill/qualification runs, the hot-cache cap was 1 GB and the SSD-cache cap 2 GB. One request ran at a time.
+## Connect Pi to the local server
 
-## Start Pi in another terminal
-
-From the same checkout, create a fresh agent directory. The normal provider file connects directly to the model server. The independent measurement harness uses its own proxy to capture timings.
+Open a second terminal in this checkout. Use a fresh temporary agent directory to test Pi cleanly:
 
 ```sh
 export PI_CODING_AGENT_DIR="$(mktemp -d)"
@@ -34,13 +62,9 @@ pi --offline --provider inkling-local --model inkling --thinking off \
   -e "$PWD/configs/pi-greedy.ts"
 ```
 
-The optional greedy extension sets temperature 0, seed 17 and a 512-ID output budget for this provider. It leaves Pi’s normal tools and system prompt intact. Omit the extension to use the ordinary provider defaults.
+The `pi-greedy.ts` extension sets temperature `0`, seed `17`, and a `512` token output limit. Drop `-e "$PWD/configs/pi-greedy.ts"` when running normal everyday work.
 
-The 65,536-token qualification used two configured request slots and one active request. To reproduce it, use `--context 65536 --slots 2` in the foreground command and copy `configs/pi-direct-64k.json` as the disposable agent's `models.json`. At fixed depths 3 and 6, the exact ordered retrieval test submitted 31,954 and 64,717 input IDs and reserved 768 output IDs. Pi still used 512 IDs per response. The benchmark and the registry tested one active stream.
-
-## Warm a project's shared Pi prefix
-
-Keep the server and its prefix cache running. From the project where you will use Pi, set `LAB` to the absolute path of this checkout and keep the same disposable provider directory for both commands. The first command prepares a snapshot of the shared system and tool prefix. It uses two synthetic user messages to locate the boundary. It sends the prefix exclusively to the loopback endpoint. Its setup time is separate from subsequent task latency.
+Prefix cache is saved KV cache that lets the server skip re-reading shared system instructions. To warm the shared Pi prompt in your project directory, set `LAB` to this repository path and run both lines in order:
 
 ```sh
 pi --offline --provider inkling-local --model inkling --thinking off \
@@ -50,15 +74,40 @@ pi --offline --provider inkling-local --model inkling --thinking off \
   -e "$LAB/configs/pi-greedy.ts"
 ```
 
-The cache key depends on the rendered system prompt and tools. Changing projects, tools, extensions that alter the prompt, or model can change the prefix. First prompts after a fresh launch include the full prefill cost.
+Changing tools, project files, or system prompts creates a different prefix cache key.
 
-## Original four-bit configuration
+## Repeat the M1 speed screen and A/B/A benchmark
 
-The original oQ4e configuration uses [oQ4e-MTP at 3eea042](https://huggingface.co/mlx-community/Inkling-2-Mini-oQ4e-mtp/tree/3eea042751cd296b7266628a8342c1749242e1fe). Point `--weights` at that directory, use a separate state and cache, and omit `--sort-small-expert-batches`. Fixed depth 6 produced the reproducible 38.17 tok/s Pi result. Depth 3 passed the original registry gates at 20.4 tok/s. The 32K single-user variant uses `--context 32768 --slots 1` and `configs/pi-direct.json`.
+Close heavy GPU apps so the M1 Max GPU starts idle. Mount `OMLX_DMG` at `../mount-omlx-082` when running `screen_m1.py`, or set `OMLX_APP` to the mounted `oMLX.app` path when running `omlx_leg.py` or `omlx_run.py`.
 
-## GGUF controls
+To repeat one primed M1 screen with all promoted flags on `oQ4e`, run:
 
-Download both top-level GGUF files from [the Unsloth pinned revision](https://huggingface.co/unsloth/Inkling-2-Mini-GGUF/tree/ae9327c5fbc7333116ba32eee78bb5d2bbefae4f). Use the pinned [Apple Silicon runtime](https://github.com/unslothai/llama.cpp/releases/tag/b12588-mix-c0c3de8). Target and draft checksums are in PLAN.md. Set LLAMA_SERVER to the extracted binary. The plain and depth-6 launches differ only by the draft flags.
+```sh
+python3.12 screen_m1.py speed-m1-test oq4 \
+  sort32,caps,m1_attn,verify_compile,split_in_proj,skip_lm_head,fast_decode,fast_greedy,prefill_pad64,affine4 \
+  6
+```
+
+To run one 6-task leg of the fresh-prefix A/B/A test (7 trials, first warmups dropped or scored per `omlx_leg.py`), run:
+
+```sh
+export OMLX_APP="/path/to/oMLX.app"
+python3.12 omlx_leg.py --weights "$MODEL_DIR/omlx-oq4" \
+  --cache-root "$PWD/scratch-kv" --depth 6 --context 32768 \
+  --m1-fast --affine4 results/candidate-b
+```
+
+Run a control leg without `--m1-fast --affine4` before and after Candidate B so you can measure thermal or background drift.
+
+## Re-run the 64K retrieval and qualification runs
+
+The 64K qualification uses `--context 65536 --slots 1` on `omlx-oq4 --m1-fast --affine4` (or `--slots 2` for registry runs that require 131,072 total KV tokens). Exact ordered retrieval tests at 15,569, 31,954, and 64,717 input tokens reserve `768` output tokens. Full raw results sit in [raw/qual-m1-final](raw/qual-m1-final).
+
+## Run stock GGUF baselines
+
+Download `Inkling-2-Mini-UD-Q4_K_M.gguf` and `dspark-Inkling-2-Mini-Q8_0.gguf` from [the Unsloth revision](https://huggingface.co/unsloth/Inkling-2-Mini-GGUF/tree/ae9327c5fbc7333116ba32eee78bb5d2bbefae4f). Download the matching [llama.cpp Apple Silicon runtime](https://github.com/unslothai/llama.cpp/releases/tag/b12588-mix-c0c3de8) and set `LLAMA_SERVER` to the server binary.
+
+To run the plain GGUF baseline on port `18089`, run:
 
 ```sh
 "$LLAMA_SERVER" -m "$MODEL_DIR/Inkling-2-Mini-UD-Q4_K_M.gguf" \
@@ -66,19 +115,11 @@ Download both top-level GGUF files from [the Unsloth pinned revision](https://hu
   --jinja --metrics --slots --reasoning off --temp 0 --seed 17
 ```
 
-For fixed depth 6 append:
+To add DSpark depth 6 speculative drafting, append these flags:
 
 ```sh
 --spec-type draft-dspark --spec-draft-n-max 6 \
---spec-draft-model "$MODEL_DIR/dspark-Inkling-2-Mini-Q8_0.gguf"
+  --spec-draft-model "$MODEL_DIR/dspark-Inkling-2-Mini-Q8_0.gguf"
 ```
 
-Use configs/pi-direct.json for the 32K GGUF launch. The three-pass production loop stays fixed throughout.
-
-For the strongest sustained-session result, run the native oQ4e target from a separate state directory and cache. Keep the same local Pi provider and model alias. The submitted registry version uses `--depth 3`. For the fastest coding configuration to pass all the Pi gates use the command below.
-
-```sh
-python3.12 serve_omlx.py --dmg "$OMLX_DMG" \
-  --weights "$MODEL_DIR/omlx-oq4" --state "$PWD/inkling-oq4-state" \
-  --cache "$MODEL_DIR/inkling-oq4-cache" --depth 6 --context 65536 --slots 2
-```
+Use [configs/pi-direct.json](configs/pi-direct.json) when connecting Pi to this 32K GGUF launch.
