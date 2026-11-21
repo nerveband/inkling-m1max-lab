@@ -34,3 +34,5 @@ python3.12 omlx_leg.py --weights "$MODEL_DIR/omlx-oq4" --cache-root "$MODEL_DIR/
 python3.12 omlx_leg.py --weights "$MODEL_DIR/omlx-oq4" --cache-root "$MODEL_DIR/transient-kv" --depth 0 measurements/oq-c
 python3.12 compare.py measurements/oq-a measurements/oq-b measurements/oq-c
 ```
+
+For a direct-provider smoke test, run an isolated server first. With `BENCH_BYPASS_PROXY=1`, the fixture invokes the normal Pi provider on port 18089. Add `--stock-provider` to remove the benchmark extension. That check uses the standard Pi request, a disposable worktree and the same independent diff, test and final-answer assertions. Reserve it for the synthetic fixture. Its timings are outside the controlled leaderboard.
