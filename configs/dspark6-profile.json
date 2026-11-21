@@ -1,0 +1,1 @@
+{"draft":"dspark-Inkling-2-Mini-Q8_0.gguf","args":["--spec-type","draft-dspark","--spec-draft-n-max","6","--perf","-lv","5"]}

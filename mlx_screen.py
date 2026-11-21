@@ -10,8 +10,8 @@ def probe():
             if not line.startswith(b'data:') or line[5:].strip()==b'[DONE]':continue
             event=json.loads(line[5:]); usage=event.get('usage') or usage
             delta=((event.get('choices') or [{}])[0]).get('delta') or {}
-            if delta.get('content') or delta.get('reasoning_content'):
-                first=first or time.monotonic();pieces.append(delta.get('content') or '');reasoning.append(delta.get('reasoning_content') or '')
+            if delta.get('content') or delta.get('reasoning_content') or delta.get('reasoning'):
+                first=first or time.monotonic();pieces.append(delta.get('content') or '');reasoning.append(delta.get('reasoning_content') or delta.get('reasoning') or '')
     end=time.monotonic()
     return dict(ttft=first-t if first else None,wall=end-t,usage=usage,decode_tps=(usage['completion_tokens']-1)/(end-first) if first and usage.get('completion_tokens',0)>1 else None,text=''.join(pieces),reasoning=''.join(reasoning))
 if __name__=='__main__':

@@ -1,0 +1,37 @@
+{
+  "pi": [
+    {
+      "reasoning_retokenized": 8,
+      "visible_retokenized": 0,
+      "tools": [
+        "read"
+      ]
+    },
+    {
+      "reasoning_retokenized": 20,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "edit"
+      ]
+    },
+    {
+      "reasoning_retokenized": 0,
+      "visible_retokenized": 0,
+      "tools": [
+        "bash"
+      ]
+    },
+    {
+      "reasoning_retokenized": 11,
+      "visible_retokenized": 3,
+      "tools": []
+    }
+  ]
+}

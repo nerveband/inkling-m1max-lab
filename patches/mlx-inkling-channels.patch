@@ -1,0 +1,81 @@
+diff --git a/mlx_lm/chat_templates/inkling2.py b/mlx_lm/chat_templates/inkling2.py
+new file mode 100644
+index 0000000..6d3a863
+--- /dev/null
++++ b/mlx_lm/chat_templates/inkling2.py
+@@ -0,0 +1,13 @@
++"""The checkpoint supplies the input template. These markers split generated channels."""
++RESPONSE_FORMAT = {
++    "initial_state": "header",
++    "transitions": {
++        "header": [
++            ("<|content_thinking|>", "reasoning"),
++            ("<|content_text|>", "normal"),
++            ("<|content_invoke_tool_json|>", "tool"),
++        ],
++        "reasoning": [("<|end_message|>", "header")],
++        "normal": [("<|end_message|>", "header")],
++    },
++}
+diff --git a/mlx_lm/models/inkling2/__init__.py b/mlx_lm/models/inkling2/__init__.py
+index 2fdcd16..1bd8aae 100644
+--- a/mlx_lm/models/inkling2/__init__.py
++++ b/mlx_lm/models/inkling2/__init__.py
+@@ -12,3 +12,8 @@ __all__ = [
+     "Model",
+     "ModelArgs",
+ ]
++
++TOKENIZER_DEFAULTS = {
++    "chat_template_type": "inkling2",
++    "tool_parser_type": "inkling2",
++}
+diff --git a/mlx_lm/server.py b/mlx_lm/server.py
+index d44a9a7..33f4e0e 100644
+--- a/mlx_lm/server.py
++++ b/mlx_lm/server.py
+@@ -1618,7 +1618,12 @@ class APIHandler(BaseHTTPRequestHandler):
+         top_tokens = []
+
+         try:
++            first_id = None
++            last_id = None
+             for gen in response:
++                last_id = time.perf_counter()
++                if first_id is None:
++                    first_id = last_id
+                 logging.debug(gen.text)
+
+                 # Advance the text state machine to strip control sequences
+@@ -1675,6 +1680,15 @@ class APIHandler(BaseHTTPRequestHandler):
+                         len(tokens),
+                         ctx.prompt_cache_count,
+                     )
++                    if last_id is not None and last_id > first_id:
++                        elapsed = last_id - first_id
++                        resp["timings"] = {
++                            "predicted_n": len(tokens),
++                            "predicted_ms": elapsed * 1000,
++                            "predicted_per_second": (len(tokens) - 1) / elapsed,
++                            "cache_n": ctx.prompt_cache_count,
++                            "prompt_n": len(ctx.prompt) - ctx.prompt_cache_count,
++                        }
+                     self.wfile.write(f"data: {json.dumps(resp)}\n\n".encode())
+                     self.wfile.flush()
+                 self.wfile.write("data: [DONE]\n\n".encode())
+diff --git a/mlx_lm/tool_parsers/inkling2.py b/mlx_lm/tool_parsers/inkling2.py
+new file mode 100644
+index 0000000..9cfcb36
+--- /dev/null
++++ b/mlx_lm/tool_parsers/inkling2.py
+@@ -0,0 +1,10 @@
++import json
++
++tool_call_start = "<|content_invoke_tool_json|>"
++tool_call_end = "<|end_message|>"
++
++def parse_tool_call(text, tools=None):
++    value = json.loads(text.strip())
++    if not isinstance(value.get("name"), str) or not isinstance(value.get("args"), dict):
++        raise ValueError("Invalid Inkling tool call")
++    return {"name": value["name"], "arguments": value["args"]}

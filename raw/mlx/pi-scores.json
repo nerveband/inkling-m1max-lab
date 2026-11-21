@@ -1,0 +1,30 @@
+[
+  {
+    "task": "pi",
+    "correct": false,
+    "wall": 9.002628082999763,
+    "generated_ids": 0,
+    "decode_seconds": 0.0,
+    "decode_tps": null,
+    "first_ttft": 6.5577632919998905,
+    "followup_ttft": [],
+    "turns": [
+      {
+        "timings": {},
+        "usage": {
+          "prompt_tokens": 1426,
+          "completion_tokens": 41,
+          "total_tokens": 1467,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "ttft": 6.5577632919998905,
+        "wall": 8.607826749999731,
+        "finish": "stop",
+        "error": null,
+        "stream_tps": 19.51159113826959
+      }
+    ]
+  }
+]

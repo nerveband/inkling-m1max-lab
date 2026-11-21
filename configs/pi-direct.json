@@ -1,0 +1,10 @@
+{
+  "providers": {
+    "inkling-local": {
+      "baseUrl": "http://127.0.0.1:18089/v1",
+      "api": "openai-completions",
+      "apiKey": "local-placeholder",
+      "models": [{"id":"inkling","name":"Inkling 2 Mini (local)","reasoning":false,"contextWindow":32768,"maxTokens":512,"compat":{"supportsReasoningEffort":false,"maxTokensField":"max_tokens"}}]
+    }
+  }
+}

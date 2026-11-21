@@ -39,9 +39,20 @@ def run(out,held=False):
         answer=''.join(c.get('text','') for c in messages[-1].get('content',[]) if c.get('type')=='text').strip() if messages else ''
         diff=git('diff','--name-only',cwd=fixture)
         test=subprocess.run(['python3','-B','check.py'],cwd=fixture,capture_output=True)
-        ok=(result.returncode==0 and [c['toolName'] for c in calls if c['toolName']!='bash' or c.get('args',{}).get('command')=='python3 -B check.py']==['read','edit','bash'] and len(verified)==len(calls) and all(not v.get('isError') for v in verified) and diff=='calc.py' and (fixture/'calc.py').read_text()==after and test.returncode==0 and answer==final)
+        required=[]
+        for c in calls:
+            tool, arguments=c['toolName'],c.get('args',{})
+            if tool=='read' and arguments.get('path','').removeprefix('./')=='calc.py' and 'read' not in required:
+                required.append('read')
+            if tool=='edit' or (tool=='bash' and arguments.get('command')=='python3 -B check.py'):
+                required.append(tool)
+        checks=dict(exit_ok=result.returncode==0,ordered_tools=required==['read','edit','bash'],
+                    tools_ok=len(verified)==len(calls) and all(not v.get('isError') for v in verified),
+                    exact_diff=diff=='calc.py' and (fixture/'calc.py').read_text()==after,
+                    test_ok=test.returncode==0,answer_ok=answer==final)
+        ok=all(checks.values())
         turns=[json.loads(p.read_text()) for p in sorted(out.glob('response-*.json'))]
-        summary=dict(passed=ok,wall_s=elapsed,tools=[c['toolName'] for c in calls],answer=answer,test=test.returncode,turns=turns)
+        summary=dict(passed=ok,checks=checks,wall_s=elapsed,tools=[c['toolName'] for c in calls],answer=answer,test=test.returncode,turns=turns)
         (out/'score.json').write_text(json.dumps(summary,indent=2));print('Pi',ok,round(elapsed,2),summary['tools'],repr(answer[:80]),flush=True)
         return summary
 if __name__=='__main__': run(sys.argv[1], '--held' in sys.argv)
