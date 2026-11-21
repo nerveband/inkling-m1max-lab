@@ -48,7 +48,9 @@ def guarded(server,job,private,port=18089,ready_path='/health'):
                     with urllib.request.urlopen(f'http://127.0.0.1:{port}'+ready_path,timeout=1): break
                 except OSError: time.sleep(1)
             else: raise TimeoutError('load')
-            print('ready seconds',round(time.monotonic()-t,3),flush=True)
+            load_seconds=round(time.monotonic()-t,3)
+            (private/'ready.json').write_text(json.dumps(dict(ready_seconds=load_seconds,initial_swap_mib=base[1],initial_gpu_system=base[3].get('In use system memory'))))
+            print('ready seconds',load_seconds,flush=True)
             worker=subprocess.Popen(job,start_new_session=True)
             while worker.poll() is None:
                 s=state()
