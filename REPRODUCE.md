@@ -29,8 +29,11 @@ From the same checkout, create a fresh agent directory. The normal provider file
 ```sh
 export PI_CODING_AGENT_DIR="$(mktemp -d)"
 cp configs/pi-direct.json "$PI_CODING_AGENT_DIR/models.json"
-pi --offline --provider inkling-local --model inkling --thinking off
+pi --offline --provider inkling-local --model inkling --thinking off \
+  -e "$PWD/configs/pi-greedy.ts"
 ```
+
+The optional greedy extension sets temperature 0, seed 17 and a 512-ID output budget for this provider. It leaves Pi’s normal tools and system prompt intact. Omit the extension to use the ordinary provider defaults.
 
 The 65,536-token qualification used two configured request slots and one active request. To reproduce it, use `--context 65536 --slots 2` in the foreground command and copy `configs/pi-direct-64k.json` as the disposable agent's `models.json`. At fixed depth 3, the exact ordered retrieval test submitted 31,954 and 64,717 input IDs and reserved 768 output IDs. Pi still used 512 IDs per response. The benchmark and the registry tested one active stream.
 
