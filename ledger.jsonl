@@ -22,3 +22,10 @@
 {"date": "2026-11-21", "experiment": "oq4-cache-off", "status": "screen", "raw": "raw/oq4-cache-off"}
 {"date": "2026-11-21", "experiment": "oq4-cache-fixed3", "status": "screen", "raw": "raw/oq4-cache-fixed3"}
 {"date": "2026-11-21", "experiment": "oq4-cache-adaptive6", "status": "screen", "raw": "raw/oq4-cache-adaptive6"}
+{"date": "2026-11-21", "experiment": "lookup-and-d6", "config": "lookup-dspark6", "raw": "raw/lookup-and-d6"}
+{"date": "2026-11-21", "experiment": "depth7", "config": "dspark-7", "raw": "raw/depth7"}
+{"date": "2026-11-21", "experiment": "tf-off", "config": "TensorFold original --no-drafts", "raw": "raw/tf-off"}
+{"date": "2026-11-21", "experiment": "tf-draft", "config": "TensorFold original DSpark", "raw": "raw/tf-draft"}
+{"date": "2026-11-21", "experiment": "vlm-ready-off", "config": "NetProjects original draft off", "raw": "raw/vlm-ready-off"}
+{"date": "2026-11-21", "experiment": "mlx-final-fixture", "config": "patched mlx-lm 4bit", "raw": "raw/mlx-final-fixture"}
+{"date": "2026-11-21", "experiment": "release-oq4-fixed3-32k", "config": "published oMLX 0.8.2 disk image, fixed 3 + prefix cache", "raw": "raw/release-oq4-fixed3-32k"}

@@ -1,0 +1,90 @@
+[
+  {
+    "task": "pi",
+    "correct": false,
+    "wall": 43.92947962499966,
+    "generated_ids": 41,
+    "decode_seconds": 3.202,
+    "decode_tps": 12.492192379762649,
+    "first_ttft": 40.33671183300066,
+    "followup_ttft": [],
+    "turns": [
+      {
+        "timings": {},
+        "usage": {
+          "prompt_tokens": 1426,
+          "completion_tokens": 41,
+          "total_tokens": 1467,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        },
+        "ttft": 40.33671183300066,
+        "wall": 43.538805875000435,
+        "finish": "stop",
+        "error": null,
+        "stream_tps": 12.491825497735602
+      }
+    ],
+    "native_server_clocks": [
+      {
+        "prompt_n": 1426,
+        "cache_n": 0,
+        "predicted_n": 41,
+        "rounds": 11,
+        "accepted": 29,
+        "proposed": 30,
+        "first": 40.336,
+        "decode": 3.202,
+        "elapsed": 43.538
+      }
+    ]
+  },
+  {
+    "task": "pi-held",
+    "correct": false,
+    "wall": 43.966860458000156,
+    "generated_ids": 41,
+    "decode_seconds": 3.206,
+    "decode_tps": 12.476606363069246,
+    "first_ttft": 40.38717162499961,
+    "followup_ttft": [],
+    "turns": [
+      {
+        "timings": {},
+        "usage": {
+          "prompt_tokens": 1428,
+          "completion_tokens": 41,
+          "total_tokens": 1469,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        },
+        "ttft": 40.38717162499961,
+        "wall": 43.59322987500036,
+        "finish": "stop",
+        "error": null,
+        "stream_tps": 12.476379679000102
+      }
+    ],
+    "native_server_clocks": [
+      {
+        "prompt_n": 1428,
+        "cache_n": 0,
+        "predicted_n": 41,
+        "rounds": 11,
+        "accepted": 29,
+        "proposed": 30,
+        "first": 40.387,
+        "decode": 3.206,
+        "elapsed": 43.593
+      }
+    ]
+  }
+]

@@ -1,0 +1,46 @@
+[
+  {
+    "prompt_n": 34,
+    "cache_n": 0,
+    "predicted_n": 256,
+    "rounds": 255,
+    "accepted": 0,
+    "proposed": 0,
+    "first": 1.134,
+    "decode": 31.747,
+    "elapsed": 32.881
+  },
+  {
+    "prompt_n": 34,
+    "cache_n": 0,
+    "predicted_n": 256,
+    "rounds": 255,
+    "accepted": 0,
+    "proposed": 0,
+    "first": 2.223,
+    "decode": 31.736,
+    "elapsed": 33.959
+  },
+  {
+    "prompt_n": 1426,
+    "cache_n": 0,
+    "predicted_n": 41,
+    "rounds": 40,
+    "accepted": 0,
+    "proposed": 0,
+    "first": 41.088,
+    "decode": 5.429,
+    "elapsed": 46.517
+  },
+  {
+    "prompt_n": 1428,
+    "cache_n": 1356,
+    "predicted_n": 41,
+    "rounds": 40,
+    "accepted": 0,
+    "proposed": 0,
+    "first": 6.097,
+    "decode": 5.427,
+    "elapsed": 11.525
+  }
+]

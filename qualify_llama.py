@@ -1,5 +1,5 @@
 """Run the final qualification against an already running loopback GGUF endpoint."""
-import json,pathlib,sys,time
+import json,os,pathlib,sys,time
 from direct import post
 from pi_task import run as pi
 from qualification import needle
@@ -11,6 +11,8 @@ def qualify(path,context):
     msg=r['choices'][0]['message']
     reasoning_ok=bool((msg.get('reasoning_content') or msg.get('reasoning') or '').strip()) and (msg.get('content') or '').strip()=='391'
     (path/'reasoning.json').write_text(json.dumps(dict(passed=reasoning_ok,answer=msg.get('content'),finish=r['choices'][0]['finish_reason'],usage=r['usage'])))
+    if os.getenv('BENCH_WARM_AGENT')=='1':
+        pi(path/'pi-warm')
     held=pi(path/'pi-held',held=True)
     with (path/'needles.jsonl').open('x') as f:
         for length in (context//2,context):

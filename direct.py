@@ -1,5 +1,5 @@
 """Native endpoint, exact token-ID prompts. Discard warmups, keep all raw counters."""
-import json, os, pathlib, sys, time, urllib.request
+import hashlib, json, os, pathlib, sys, time, urllib.request
 URL='http://127.0.0.1:18089'
 def post(path,body,timeout=900):
     req=urllib.request.Request(URL+path,json.dumps(body).encode(),{'Content-Type':'application/json'})
@@ -18,17 +18,20 @@ def request(ids,n):
                 output.append(ev.get('content',''));emitted.extend(ev.get('tokens',[]))
             if ev.get('stop'): last=ev
     end=time.monotonic()
-    return dict(input_n=len(ids),requested=n,ttft_s=first-t if first else None,wall_s=end-t,timings=last.get('timings',{}),evaluated=last.get('tokens_evaluated'),cached=last.get('tokens_cached'),stop_type=last.get('stop_type'),ids=emitted,text=''.join(output))
-def panel(length,kind,rep):
+    return dict(input_n=len(ids),input_ids_sha256=hashlib.sha256(json.dumps(ids,separators=(',',':')).encode()).hexdigest(),requested=n,ttft_s=first-t if first else None,wall_s=end-t,timings=last.get('timings',{}),evaluated=last.get('tokens_evaluated'),cached=last.get('tokens_cached'),stop_type=last.get('stop_type'),ids=emitted,text=''.join(output))
+def panel(length,kind,rep,encode=tokens,chat_suffix=None):
     code=''.join(f'def compute_{i}(value):\n    return (value * {i+1} + {i%11}) % 257\n\n' for i in range(135))
-    prefix=tokens('Synthetic work item '+str(rep)+'.\n')
+    prefix=encode('Synthetic work item '+str(rep)+'.\n')
     text=code if kind=='copy' else '\n'.join(f'Case {i}: input is {i*17} and label is record_{i}.' for i in range(400))
     end='Repeat the following code exactly, starting from compute_0. Write 40 functions.\n'+code[:750] if kind=='copy' else 'Implement a Python ring buffer class with capacity validation, iteration, resizing and unit tests. Write the complete implementation.\n'
     messages=[{'role':'user','content':end}]
-    rendered=post('/apply-template',{'messages':messages})['prompt']
-    if os.environ.get('BENCH_VISIBLE')=='1': rendered += '<|message_model|><|content_text|>'
-    tail=tokens(rendered)
-    pad=tokens(text); k=length-len(prefix)-len(tail)
+    marker='<|message_model|><|content_text|>' if os.environ.get('BENCH_VISIBLE')=='1' else ''
+    if chat_suffix:
+        tail=chat_suffix(messages,marker)
+    else:
+        rendered=post('/apply-template',{'messages':messages})['prompt']
+        tail=encode(rendered+marker)
+    pad=encode(text); k=length-len(prefix)-len(tail)
     assert k>0
     return prefix+(pad*((k+len(pad)-1)//len(pad)))[:k]+tail
 def run(out,length,n,count):

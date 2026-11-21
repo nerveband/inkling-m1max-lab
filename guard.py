@@ -29,7 +29,7 @@ def reason(s,base,pid):
     if pressure!=1 or swap>base[1] or not ac: return 'pressure, swap growth or AC loss'
     if any(v>base[4].get(p,0) for p,v in clients.items() if p!=pid): return 'competing inference GPU activity'
 
-def guarded(server,job,private,port=18089,ready_path='/health'):
+def guarded(server,job,private,port=18089,ready_path='/health',ready_field=None):
     import urllib.request
     private=pathlib.Path(private)
     private.mkdir(exist_ok=True,parents=True)
@@ -45,7 +45,12 @@ def guarded(server,job,private,port=18089,ready_path='/health'):
                 if service.poll() is not None: raise RuntimeError(f'server exited {service.returncode}')
                 if why:=reason(state(),base,service.pid): raise RuntimeError(why)
                 try:
-                    with urllib.request.urlopen(f'http://127.0.0.1:{port}'+ready_path,timeout=1): break
+                    with urllib.request.urlopen(f'http://127.0.0.1:{port}'+ready_path,timeout=2) as response:
+                        if not ready_field:break
+                        status=json.load(response)
+                        if status.get(ready_field):break
+                        if status.get('preload_failures'):raise RuntimeError('model preload failed: '+str(status['preload_failures']))
+                    time.sleep(1)
                 except OSError: time.sleep(1)
             else: raise TimeoutError('load')
             load_seconds=round(time.monotonic()-t,3)
