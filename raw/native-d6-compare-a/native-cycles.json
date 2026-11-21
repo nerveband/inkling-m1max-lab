@@ -1,0 +1,758 @@
+[
+  {
+    "trial": 0,
+    "excluded_first_trial": true,
+    "request": 0,
+    "unrelated_warmup": true,
+    "api_generated": 32,
+    "generated": 32,
+    "seconds": 1.612,
+    "cycles": 11,
+    "accepted": 19,
+    "proposed": 26,
+    "components_ms": {
+      "backbone": 1097.2,
+      "mtp": 9.7,
+      "sample": 0.5,
+      "cache": 5.7
+    }
+  },
+  {
+    "trial": 0,
+    "excluded_first_trial": true,
+    "request": 1,
+    "unrelated_warmup": false,
+    "api_generated": 40,
+    "generated": 41,
+    "seconds": 1.062,
+    "cycles": 10,
+    "accepted": 29,
+    "proposed": 30,
+    "components_ms": {
+      "backbone": 1028.2,
+      "mtp": 33.1,
+      "sample": 0.5,
+      "cache": 1.3
+    }
+  },
+  {
+    "trial": 0,
+    "excluded_first_trial": true,
+    "request": 2,
+    "unrelated_warmup": false,
+    "api_generated": 63,
+    "generated": 64,
+    "seconds": 1.896,
+    "cycles": 18,
+    "accepted": 44,
+    "proposed": 49,
+    "components_ms": {
+      "backbone": 1857.1,
+      "mtp": 28.0,
+      "sample": 0.8,
+      "cache": 4.6
+    }
+  },
+  {
+    "trial": 0,
+    "excluded_first_trial": true,
+    "request": 3,
+    "unrelated_warmup": false,
+    "api_generated": 62,
+    "generated": 63,
+    "seconds": 1.791,
+    "cycles": 17,
+    "accepted": 44,
+    "proposed": 47,
+    "components_ms": {
+      "backbone": 1757.6,
+      "mtp": 20.7,
+      "sample": 0.7,
+      "cache": 3.0
+    }
+  },
+  {
+    "trial": 0,
+    "excluded_first_trial": true,
+    "request": 4,
+    "unrelated_warmup": false,
+    "api_generated": 33,
+    "generated": 34,
+    "seconds": 0.849,
+    "cycles": 8,
+    "accepted": 24,
+    "proposed": 24,
+    "components_ms": {
+      "backbone": 829.9,
+      "mtp": 9.9,
+      "sample": 0.4,
+      "cache": 0.3
+    }
+  },
+  {
+    "trial": 0,
+    "excluded_first_trial": true,
+    "request": 5,
+    "unrelated_warmup": false,
+    "api_generated": 20,
+    "generated": 21,
+    "seconds": 0.654,
+    "cycles": 6,
+    "accepted": 13,
+    "proposed": 17,
+    "components_ms": {
+      "backbone": 625.9,
+      "mtp": 29.7,
+      "sample": 0.3,
+      "cache": 3.1
+    }
+  },
+  {
+    "trial": 1,
+    "excluded_first_trial": false,
+    "request": 0,
+    "unrelated_warmup": true,
+    "api_generated": 32,
+    "generated": 32,
+    "seconds": 1.603,
+    "cycles": 11,
+    "accepted": 19,
+    "proposed": 26,
+    "components_ms": {
+      "backbone": 1101.7,
+      "mtp": 9.3,
+      "sample": 0.7,
+      "cache": 5.8
+    }
+  },
+  {
+    "trial": 1,
+    "excluded_first_trial": false,
+    "request": 1,
+    "unrelated_warmup": false,
+    "api_generated": 40,
+    "generated": 41,
+    "seconds": 1.06,
+    "cycles": 10,
+    "accepted": 29,
+    "proposed": 30,
+    "components_ms": {
+      "backbone": 1027.7,
+      "mtp": 29.3,
+      "sample": 0.5,
+      "cache": 1.2
+    }
+  },
+  {
+    "trial": 1,
+    "excluded_first_trial": false,
+    "request": 2,
+    "unrelated_warmup": false,
+    "api_generated": 63,
+    "generated": 64,
+    "seconds": 1.905,
+    "cycles": 18,
+    "accepted": 44,
+    "proposed": 49,
+    "components_ms": {
+      "backbone": 1864.6,
+      "mtp": 28.4,
+      "sample": 1.0,
+      "cache": 4.6
+    }
+  },
+  {
+    "trial": 1,
+    "excluded_first_trial": false,
+    "request": 3,
+    "unrelated_warmup": false,
+    "api_generated": 62,
+    "generated": 63,
+    "seconds": 1.792,
+    "cycles": 17,
+    "accepted": 44,
+    "proposed": 47,
+    "components_ms": {
+      "backbone": 1755.4,
+      "mtp": 27.3,
+      "sample": 0.9,
+      "cache": 3.1
+    }
+  },
+  {
+    "trial": 1,
+    "excluded_first_trial": false,
+    "request": 4,
+    "unrelated_warmup": false,
+    "api_generated": 33,
+    "generated": 34,
+    "seconds": 0.846,
+    "cycles": 8,
+    "accepted": 24,
+    "proposed": 24,
+    "components_ms": {
+      "backbone": 828.9,
+      "mtp": 9.6,
+      "sample": 0.4,
+      "cache": 0.3
+    }
+  },
+  {
+    "trial": 1,
+    "excluded_first_trial": false,
+    "request": 5,
+    "unrelated_warmup": false,
+    "api_generated": 20,
+    "generated": 21,
+    "seconds": 0.65,
+    "cycles": 6,
+    "accepted": 13,
+    "proposed": 17,
+    "components_ms": {
+      "backbone": 625.2,
+      "mtp": 21.2,
+      "sample": 0.3,
+      "cache": 3.2
+    }
+  },
+  {
+    "trial": 2,
+    "excluded_first_trial": false,
+    "request": 0,
+    "unrelated_warmup": true,
+    "api_generated": 32,
+    "generated": 32,
+    "seconds": 1.59,
+    "cycles": 11,
+    "accepted": 19,
+    "proposed": 26,
+    "components_ms": {
+      "backbone": 1099.1,
+      "mtp": 9.4,
+      "sample": 0.6,
+      "cache": 5.9
+    }
+  },
+  {
+    "trial": 2,
+    "excluded_first_trial": false,
+    "request": 1,
+    "unrelated_warmup": false,
+    "api_generated": 40,
+    "generated": 41,
+    "seconds": 1.058,
+    "cycles": 10,
+    "accepted": 29,
+    "proposed": 30,
+    "components_ms": {
+      "backbone": 1028.0,
+      "mtp": 26.9,
+      "sample": 0.5,
+      "cache": 1.2
+    }
+  },
+  {
+    "trial": 2,
+    "excluded_first_trial": false,
+    "request": 2,
+    "unrelated_warmup": false,
+    "api_generated": 63,
+    "generated": 64,
+    "seconds": 1.898,
+    "cycles": 18,
+    "accepted": 44,
+    "proposed": 49,
+    "components_ms": {
+      "backbone": 1860.3,
+      "mtp": 26.2,
+      "sample": 0.9,
+      "cache": 4.5
+    }
+  },
+  {
+    "trial": 2,
+    "excluded_first_trial": false,
+    "request": 3,
+    "unrelated_warmup": false,
+    "api_generated": 62,
+    "generated": 63,
+    "seconds": 1.799,
+    "cycles": 17,
+    "accepted": 44,
+    "proposed": 47,
+    "components_ms": {
+      "backbone": 1761.5,
+      "mtp": 28.7,
+      "sample": 0.9,
+      "cache": 3.1
+    }
+  },
+  {
+    "trial": 2,
+    "excluded_first_trial": false,
+    "request": 4,
+    "unrelated_warmup": false,
+    "api_generated": 33,
+    "generated": 34,
+    "seconds": 0.855,
+    "cycles": 8,
+    "accepted": 24,
+    "proposed": 24,
+    "components_ms": {
+      "backbone": 835.6,
+      "mtp": 9.7,
+      "sample": 0.3,
+      "cache": 0.4
+    }
+  },
+  {
+    "trial": 2,
+    "excluded_first_trial": false,
+    "request": 5,
+    "unrelated_warmup": false,
+    "api_generated": 20,
+    "generated": 21,
+    "seconds": 0.657,
+    "cycles": 6,
+    "accepted": 13,
+    "proposed": 17,
+    "components_ms": {
+      "backbone": 630.6,
+      "mtp": 24.2,
+      "sample": 0.3,
+      "cache": 3.3
+    }
+  },
+  {
+    "trial": 3,
+    "excluded_first_trial": false,
+    "request": 0,
+    "unrelated_warmup": true,
+    "api_generated": 32,
+    "generated": 32,
+    "seconds": 1.591,
+    "cycles": 11,
+    "accepted": 19,
+    "proposed": 26,
+    "components_ms": {
+      "backbone": 1091.5,
+      "mtp": 9.0,
+      "sample": 0.6,
+      "cache": 5.7
+    }
+  },
+  {
+    "trial": 3,
+    "excluded_first_trial": false,
+    "request": 1,
+    "unrelated_warmup": false,
+    "api_generated": 40,
+    "generated": 41,
+    "seconds": 1.066,
+    "cycles": 10,
+    "accepted": 29,
+    "proposed": 30,
+    "components_ms": {
+      "backbone": 1033.4,
+      "mtp": 33.0,
+      "sample": 0.4,
+      "cache": 1.2
+    }
+  },
+  {
+    "trial": 3,
+    "excluded_first_trial": false,
+    "request": 2,
+    "unrelated_warmup": false,
+    "api_generated": 63,
+    "generated": 64,
+    "seconds": 1.903,
+    "cycles": 18,
+    "accepted": 44,
+    "proposed": 49,
+    "components_ms": {
+      "backbone": 1863.0,
+      "mtp": 28.7,
+      "sample": 0.8,
+      "cache": 4.6
+    }
+  },
+  {
+    "trial": 3,
+    "excluded_first_trial": false,
+    "request": 3,
+    "unrelated_warmup": false,
+    "api_generated": 62,
+    "generated": 63,
+    "seconds": 1.791,
+    "cycles": 17,
+    "accepted": 44,
+    "proposed": 47,
+    "components_ms": {
+      "backbone": 1753.9,
+      "mtp": 28.3,
+      "sample": 0.8,
+      "cache": 3.0
+    }
+  },
+  {
+    "trial": 3,
+    "excluded_first_trial": false,
+    "request": 4,
+    "unrelated_warmup": false,
+    "api_generated": 33,
+    "generated": 34,
+    "seconds": 0.849,
+    "cycles": 8,
+    "accepted": 24,
+    "proposed": 24,
+    "components_ms": {
+      "backbone": 830.3,
+      "mtp": 9.6,
+      "sample": 0.4,
+      "cache": 0.3
+    }
+  },
+  {
+    "trial": 3,
+    "excluded_first_trial": false,
+    "request": 5,
+    "unrelated_warmup": false,
+    "api_generated": 20,
+    "generated": 21,
+    "seconds": 0.653,
+    "cycles": 6,
+    "accepted": 13,
+    "proposed": 17,
+    "components_ms": {
+      "backbone": 627.8,
+      "mtp": 21.2,
+      "sample": 0.3,
+      "cache": 3.4
+    }
+  },
+  {
+    "trial": 4,
+    "excluded_first_trial": false,
+    "request": 0,
+    "unrelated_warmup": true,
+    "api_generated": 32,
+    "generated": 32,
+    "seconds": 1.603,
+    "cycles": 11,
+    "accepted": 19,
+    "proposed": 26,
+    "components_ms": {
+      "backbone": 1096.2,
+      "mtp": 8.8,
+      "sample": 0.7,
+      "cache": 5.8
+    }
+  },
+  {
+    "trial": 4,
+    "excluded_first_trial": false,
+    "request": 1,
+    "unrelated_warmup": false,
+    "api_generated": 40,
+    "generated": 41,
+    "seconds": 1.058,
+    "cycles": 10,
+    "accepted": 29,
+    "proposed": 30,
+    "components_ms": {
+      "backbone": 1027.0,
+      "mtp": 26.5,
+      "sample": 0.4,
+      "cache": 1.2
+    }
+  },
+  {
+    "trial": 4,
+    "excluded_first_trial": false,
+    "request": 2,
+    "unrelated_warmup": false,
+    "api_generated": 63,
+    "generated": 64,
+    "seconds": 1.897,
+    "cycles": 18,
+    "accepted": 44,
+    "proposed": 49,
+    "components_ms": {
+      "backbone": 1859.9,
+      "mtp": 22.7,
+      "sample": 0.8,
+      "cache": 4.4
+    }
+  },
+  {
+    "trial": 4,
+    "excluded_first_trial": false,
+    "request": 3,
+    "unrelated_warmup": false,
+    "api_generated": 62,
+    "generated": 63,
+    "seconds": 1.789,
+    "cycles": 17,
+    "accepted": 44,
+    "proposed": 47,
+    "components_ms": {
+      "backbone": 1753.1,
+      "mtp": 26.9,
+      "sample": 0.8,
+      "cache": 2.9
+    }
+  },
+  {
+    "trial": 4,
+    "excluded_first_trial": false,
+    "request": 4,
+    "unrelated_warmup": false,
+    "api_generated": 33,
+    "generated": 34,
+    "seconds": 0.85,
+    "cycles": 8,
+    "accepted": 24,
+    "proposed": 24,
+    "components_ms": {
+      "backbone": 830.9,
+      "mtp": 10.2,
+      "sample": 0.4,
+      "cache": 0.3
+    }
+  },
+  {
+    "trial": 4,
+    "excluded_first_trial": false,
+    "request": 5,
+    "unrelated_warmup": false,
+    "api_generated": 20,
+    "generated": 21,
+    "seconds": 0.654,
+    "cycles": 6,
+    "accepted": 13,
+    "proposed": 17,
+    "components_ms": {
+      "backbone": 626.0,
+      "mtp": 27.9,
+      "sample": 0.3,
+      "cache": 3.2
+    }
+  },
+  {
+    "trial": 5,
+    "excluded_first_trial": false,
+    "request": 0,
+    "unrelated_warmup": true,
+    "api_generated": 32,
+    "generated": 32,
+    "seconds": 1.602,
+    "cycles": 11,
+    "accepted": 19,
+    "proposed": 26,
+    "components_ms": {
+      "backbone": 1098.4,
+      "mtp": 8.7,
+      "sample": 0.6,
+      "cache": 5.6
+    }
+  },
+  {
+    "trial": 5,
+    "excluded_first_trial": false,
+    "request": 1,
+    "unrelated_warmup": false,
+    "api_generated": 40,
+    "generated": 41,
+    "seconds": 1.059,
+    "cycles": 10,
+    "accepted": 29,
+    "proposed": 30,
+    "components_ms": {
+      "backbone": 1027.7,
+      "mtp": 27.7,
+      "sample": 0.4,
+      "cache": 1.2
+    }
+  },
+  {
+    "trial": 5,
+    "excluded_first_trial": false,
+    "request": 2,
+    "unrelated_warmup": false,
+    "api_generated": 63,
+    "generated": 64,
+    "seconds": 1.898,
+    "cycles": 18,
+    "accepted": 44,
+    "proposed": 49,
+    "components_ms": {
+      "backbone": 1858.9,
+      "mtp": 29.2,
+      "sample": 0.9,
+      "cache": 4.5
+    }
+  },
+  {
+    "trial": 5,
+    "excluded_first_trial": false,
+    "request": 3,
+    "unrelated_warmup": false,
+    "api_generated": 62,
+    "generated": 63,
+    "seconds": 1.806,
+    "cycles": 17,
+    "accepted": 44,
+    "proposed": 47,
+    "components_ms": {
+      "backbone": 1766.3,
+      "mtp": 28.7,
+      "sample": 1.0,
+      "cache": 3.2
+    }
+  },
+  {
+    "trial": 5,
+    "excluded_first_trial": false,
+    "request": 4,
+    "unrelated_warmup": false,
+    "api_generated": 33,
+    "generated": 34,
+    "seconds": 0.85,
+    "cycles": 8,
+    "accepted": 24,
+    "proposed": 24,
+    "components_ms": {
+      "backbone": 831.5,
+      "mtp": 9.7,
+      "sample": 0.4,
+      "cache": 0.3
+    }
+  },
+  {
+    "trial": 5,
+    "excluded_first_trial": false,
+    "request": 5,
+    "unrelated_warmup": false,
+    "api_generated": 20,
+    "generated": 21,
+    "seconds": 0.654,
+    "cycles": 6,
+    "accepted": 13,
+    "proposed": 17,
+    "components_ms": {
+      "backbone": 629.1,
+      "mtp": 21.8,
+      "sample": 0.3,
+      "cache": 3.1
+    }
+  },
+  {
+    "trial": 6,
+    "excluded_first_trial": false,
+    "request": 0,
+    "unrelated_warmup": true,
+    "api_generated": 32,
+    "generated": 32,
+    "seconds": 1.601,
+    "cycles": 11,
+    "accepted": 19,
+    "proposed": 26,
+    "components_ms": {
+      "backbone": 1100.4,
+      "mtp": 8.8,
+      "sample": 0.5,
+      "cache": 6.0
+    }
+  },
+  {
+    "trial": 6,
+    "excluded_first_trial": false,
+    "request": 1,
+    "unrelated_warmup": false,
+    "api_generated": 40,
+    "generated": 41,
+    "seconds": 1.063,
+    "cycles": 10,
+    "accepted": 29,
+    "proposed": 30,
+    "components_ms": {
+      "backbone": 1033.9,
+      "mtp": 26.1,
+      "sample": 0.4,
+      "cache": 1.1
+    }
+  },
+  {
+    "trial": 6,
+    "excluded_first_trial": false,
+    "request": 2,
+    "unrelated_warmup": false,
+    "api_generated": 63,
+    "generated": 64,
+    "seconds": 1.908,
+    "cycles": 18,
+    "accepted": 44,
+    "proposed": 49,
+    "components_ms": {
+      "backbone": 1870.7,
+      "mtp": 22.5,
+      "sample": 0.7,
+      "cache": 4.8
+    }
+  },
+  {
+    "trial": 6,
+    "excluded_first_trial": false,
+    "request": 3,
+    "unrelated_warmup": false,
+    "api_generated": 62,
+    "generated": 63,
+    "seconds": 1.8,
+    "cycles": 17,
+    "accepted": 44,
+    "proposed": 47,
+    "components_ms": {
+      "backbone": 1764.5,
+      "mtp": 26.2,
+      "sample": 0.7,
+      "cache": 3.4
+    }
+  },
+  {
+    "trial": 6,
+    "excluded_first_trial": false,
+    "request": 4,
+    "unrelated_warmup": false,
+    "api_generated": 33,
+    "generated": 34,
+    "seconds": 0.853,
+    "cycles": 8,
+    "accepted": 24,
+    "proposed": 24,
+    "components_ms": {
+      "backbone": 835.2,
+      "mtp": 9.6,
+      "sample": 0.3,
+      "cache": 0.3
+    }
+  },
+  {
+    "trial": 6,
+    "excluded_first_trial": false,
+    "request": 5,
+    "unrelated_warmup": false,
+    "api_generated": 20,
+    "generated": 21,
+    "seconds": 0.653,
+    "cycles": 6,
+    "accepted": 13,
+    "proposed": 17,
+    "components_ms": {
+      "backbone": 626.5,
+      "mtp": 24.3,
+      "sample": 0.2,
+      "cache": 3.3
+    }
+  }
+]

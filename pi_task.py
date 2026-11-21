@@ -21,6 +21,8 @@ def run(out,held=False,stock_provider=False):
         model_id=os.environ.get('BENCH_MODEL_ID','inkling')
         bypass_proxy=os.getenv('BENCH_BYPASS_PROXY')=='1'
         provider_file='pi-direct.json' if bypass_proxy else 'models.json'
+        if bypass_proxy and os.getenv('BENCH_PI_CONTEXT')=='65536':
+            provider_file='pi-direct-64k.json'
         cfg=json.loads((ROOT/'configs'/provider_file).read_text())
         cfg['providers']['inkling-local']['models'][0]['id']=model_id
         (agent/'models.json').write_text(json.dumps(cfg))
