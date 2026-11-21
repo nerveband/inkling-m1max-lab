@@ -1,0 +1,119 @@
+[
+  {
+    "tokens": 70,
+    "cycles": 43,
+    "accepted": 25,
+    "proposed": 39,
+    "ms": {
+      "backbone": 3342.6,
+      "mtp": 61.0,
+      "sample": 1.6,
+      "cache": 11.8
+    },
+    "detail": "MTP[0] finish=parked tokens=70 cycles=43 tok/cycle=1.63 accept=25/39 (64.1%) depth[d1=15/23,d2=9/14,d3=1/2,d4=0/0,d5=0/0,d6=0/0] d0=20 emits[init=2,draft=25,bonus=29,verify=14] timing[backbone=3342.6ms mtp=61.0ms sample=1.6ms cache=11.8ms]"
+  },
+  {
+    "tokens": 58,
+    "cycles": 22,
+    "accepted": 33,
+    "proposed": 39,
+    "ms": {
+      "backbone": 1850.9,
+      "mtp": 47.7,
+      "sample": 0.9,
+      "cache": 5.2
+    },
+    "detail": "MTP[0] finish=length tokens=58 cycles=22 tok/cycle=2.64 accept=33/39 (84.6%) depth[d1=16/18,d2=12/15,d3=3/3,d4=2/2,d5=0/1,d6=0/0] d0=4 emits[init=2,draft=33,bonus=17,verify=6] timing[backbone=1850.9ms mtp=47.7ms sample=0.9ms cache=5.2ms]"
+  },
+  {
+    "tokens": 66,
+    "cycles": 33,
+    "accepted": 31,
+    "proposed": 49,
+    "ms": {
+      "backbone": 2684.5,
+      "mtp": 16.6,
+      "sample": 1.3,
+      "cache": 14.3
+    },
+    "detail": "MTP[1] finish=parked tokens=66 cycles=33 tok/cycle=2.00 accept=31/49 (63.3%) depth[d1=19/29,d2=11/18,d3=1/2,d4=0/0,d5=0/0,d6=0/0] d0=4 emits[init=2,draft=31,bonus=15,verify=18] timing[backbone=2684.5ms mtp=16.6ms sample=1.3ms cache=14.3ms]"
+  },
+  {
+    "tokens": 62,
+    "cycles": 37,
+    "accepted": 22,
+    "proposed": 31,
+    "ms": {
+      "backbone": 2431.6,
+      "mtp": 70.1,
+      "sample": 1.5,
+      "cache": 7.9
+    },
+    "detail": "MTP[1] finish=length tokens=62 cycles=37 tok/cycle=1.68 accept=22/31 (71.0%) depth[d1=12/17,d2=10/12,d3=0/2,d4=0/0,d5=0/0,d6=0/0] d0=20 emits[init=2,draft=22,bonus=29,verify=9] timing[backbone=2431.6ms mtp=70.1ms sample=1.5ms cache=7.9ms]"
+  },
+  {
+    "tokens": 41,
+    "cycles": 13,
+    "accepted": 26,
+    "proposed": 29,
+    "ms": {
+      "backbone": 1172.8,
+      "mtp": 50.8,
+      "sample": 0.5,
+      "cache": 2.6
+    },
+    "detail": "MTP[2] finish=stop tokens=41 cycles=13 tok/cycle=3.15 accept=26/29 (89.7%) depth[d1=9/9,d2=7/8,d3=6/6,d4=3/5,d5=1/1,d6=0/0] d0=4 emits[init=2,draft=26,bonus=10,verify=3] timing[backbone=1172.8ms mtp=50.8ms sample=0.5ms cache=2.6ms]"
+  },
+  {
+    "tokens": 95,
+    "cycles": 27,
+    "accepted": 66,
+    "proposed": 74,
+    "ms": {
+      "backbone": 2760.0,
+      "mtp": 55.6,
+      "sample": 1.5,
+      "cache": 6.8
+    },
+    "detail": "MTP[3] finish=stop tokens=95 cycles=27 tok/cycle=3.52 accept=66/74 (89.2%) depth[d1=20/23,d2=18/19,d3=15/17,d4=13/15,d5=0/0,d6=0/0] d0=4 emits[init=2,draft=66,bonus=19,verify=8] timing[backbone=2760.0ms mtp=55.6ms sample=1.5ms cache=6.8ms]"
+  },
+  {
+    "tokens": 63,
+    "cycles": 18,
+    "accepted": 43,
+    "proposed": 48,
+    "ms": {
+      "backbone": 1743.6,
+      "mtp": 54.9,
+      "sample": 1.0,
+      "cache": 4.3
+    },
+    "detail": "MTP[4] finish=stop tokens=63 cycles=18 tok/cycle=3.50 accept=43/48 (89.6%) depth[d1=13/14,d2=11/12,d3=9/10,d4=7/9,d5=2/2,d6=1/1] d0=4 emits[init=2,draft=43,bonus=13,verify=5] timing[backbone=1743.6ms mtp=54.9ms sample=1.0ms cache=4.3ms]"
+  },
+  {
+    "tokens": 34,
+    "cycles": 11,
+    "accepted": 21,
+    "proposed": 22,
+    "ms": {
+      "backbone": 955.0,
+      "mtp": 54.5,
+      "sample": 0.5,
+      "cache": 1.1
+    },
+    "detail": "MTP[5] finish=stop tokens=34 cycles=11 tok/cycle=3.09 accept=21/22 (95.5%) depth[d1=6/7,d2=5/5,d3=4/4,d4=3/3,d5=2/2,d6=1/1] d0=4 emits[init=2,draft=21,bonus=10,verify=1] timing[backbone=955.0ms mtp=54.5ms sample=0.5ms cache=1.1ms]"
+  },
+  {
+    "tokens": 21,
+    "cycles": 6,
+    "accepted": 13,
+    "proposed": 15,
+    "ms": {
+      "backbone": 660.2,
+      "mtp": 21.8,
+      "sample": 0.2,
+      "cache": 1.7
+    },
+    "detail": "MTP[6] finish=stop tokens=21 cycles=6 tok/cycle=3.50 accept=13/15 (86.7%) depth[d1=6/6,d2=4/5,d3=2/3,d4=1/1,d5=0/0,d6=0/0] emits[init=2,draft=13,bonus=4,verify=2] timing[backbone=660.2ms mtp=21.8ms sample=0.2ms cache=1.7ms]"
+  }
+]

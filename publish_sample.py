@@ -6,7 +6,7 @@ def extract(source):
     dst=pathlib.Path(__file__).resolve().parent/'raw'/root.name
     dst.mkdir(exist_ok=True,parents=True)
     for f in root.iterdir():
-        if f.name in ('ready.json','monitor.jsonl','direct-0.json','direct-1.json','soak.json','reasoning.json','divergence.json') or f.suffix=='.jsonl' and f.name in ('2k.jsonl','8k.jsonl','small.jsonl','needles.jsonl') or f.name.endswith(('-copy.json','-fresh.json')):
+        if f.name in ('ready.json','monitor.jsonl','direct-0.json','direct-1.json','soak.json','reasoning.json','divergence.json','pi-session.json') or f.suffix=='.jsonl' and f.name in ('2k.jsonl','8k.jsonl','small.jsonl','needles.jsonl') or f.name.endswith(('-copy.json','-fresh.json')):
             (dst/f.name).write_bytes(f.read_bytes())
     scores=summarize(root)
     if scores: (dst/'pi-scores.json').write_text(json.dumps(scores,indent=2)+'\n')

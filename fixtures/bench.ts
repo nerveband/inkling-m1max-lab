@@ -7,7 +7,7 @@ export default function (pi) {
       if (m.role === "system" && typeof m.content === "string")
         m.content = m.content.replaceAll(process.cwd(), "/fixture");
     }
-    return { ...p, cache_prompt: p.messages.some(m => m.role === "tool"), temperature: 0, max_tokens: 512, seed: 17, stream_options: { include_usage: true } };
+    return { ...p, cache_prompt: p.messages.some(m => m.role === "tool") || p.messages.filter(m => m.role === "user").length > 1, temperature: 0, max_tokens: 512, seed: 17, stream_options: { include_usage: true } };
   });
   let attempts = 0;
   pi.on("tool_call", (e) => {

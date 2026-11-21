@@ -3,6 +3,7 @@ import json,pathlib,sys,time
 from direct import post
 from pi_task import run as pi
 from qualification import needle
+from pi_session import soak
 def qualify(path,context):
     path=pathlib.Path(path);path.mkdir(exist_ok=True,parents=True)
     msgs=[dict(role='user',content='What is 17 times 23? Return just the number.')]
@@ -23,5 +24,7 @@ def qualify(path,context):
         answer=obj['choices'][0]['message'];messages.append(dict(role='assistant',content=answer.get('content','')))
         rows.append(dict(turn=i,passed=answer.get('content','').strip()=='IRIS7',wall=time.monotonic()-start,timings=obj.get('timings'),usage=obj.get('usage')))
         (path/'soak.json').write_text(json.dumps(rows,indent=2))
+    session=soak(path/'session-private')
+    print('Pi sustained',sum(row['passed'] for row in session),'of',len(session),flush=True)
     print('reasoning',reasoning_ok,'held',held['passed'],'soak',sum(x['passed'] for x in rows),'/12',flush=True)
 if __name__=='__main__':qualify(sys.argv[1],int(sys.argv[2]))

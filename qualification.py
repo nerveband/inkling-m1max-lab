@@ -1,4 +1,4 @@
-import hashlib, json, pathlib, sys, time
+import hashlib, json, os, pathlib, sys, time
 from direct import post,tokens
 def needle(length):
     codes=[hashlib.sha256(f'{length}:{i}:inkling'.encode()).hexdigest()[:10].upper() for i in range(3)]
@@ -8,6 +8,8 @@ def needle(length):
             lines.insert(int(depth*n),f'Verified audit key for section {i+1} is {codes[i]}.\n')
         return 'Read this inventory.\n'+''.join(lines)+'Return exactly the three verified audit keys in section order, separated by spaces.'
     def shape(s):
+        if os.getenv('BENCH_TOKENIZER')=='omlx':
+            return len(post('/tokenize',{'model':'inkling','messages':[{'role':'user','content':s}]})['tokens'])
         q=post('/apply-template',{'messages':[{'role':'user','content':s}]})['prompt']
         return len(tokens(q))
     lo,hi=0,length//3

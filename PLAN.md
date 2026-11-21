@@ -31,3 +31,17 @@ The 2K visible-code lookup screen (ngram-mod, match 12, minimum 1 and maximum 8)
 The MLX channel patch exposed the engine's own generated-ID clock. Its first instrumented Pi run reached 19.71 tok/s. The model issued successful read, edit and test calls and gave the exact final answer. It also tried to read check.py through the read tool, which the fixture incorrectly blocked even though it permitted cat check.py. The score records a failed tool. Both files in the disposable fixture now allow inspection. The scorer still requires the first calc.py read, the exact edit, the exact test in order, zero failed tools and the exact final answer.
 
 oMLX 0.8.2 loaded the native oQ4e-MTP target with MTP off. The agent task passed at 24.04 tok/s in 40.24 seconds. Two 34-input/256-generated direct probes reported native rates of 24.71 and 25.88 tok/s. The first included lazy model load. The second had zero prefix-cache hits. This is a combined runtime and quantization change. The fixed and adaptive arms use the same native target.
+
+The upstream b12600/IQ3 pair passed six consecutive scored Pi tasks after one warmup. Its median was 19.08 generated tok/s (19.00 to 19.20) and 24.38 seconds (24.32 to 24.45). All six used 263 generated IDs. On the native oMLX target with cache disabled, fixed depth 3 and adaptive maximum 6 both passed one screen at 32.53 tok/s. Their task times were 37.17 and 37.49 seconds. The follow-up prompt had zero cached input tokens in all ten responses across the two tasks. The GGUF depth 6 screen reused a median 1,587 input IDs on follow-ups.
+
+## First controlled Pi comparison
+
+Six scored independent Pi tasks per leg, following one warm-up per process. The target weights and greedy generation settings stayed fixed. All 18 tasks passed. Each initial request had zero cached input IDs. Every completed task used 223 generated IDs across five model responses.
+
+| Leg | Warm decode median (range), tok/s | Correct wall time median (range), s | First TTFT median, s |
+|---|---:|---:|---:|
+| Plain A | 18.74 (18.70 to 19.12) | 22.32 (22.24 to 22.35) | 8.671 |
+| DSpark depth 6 | 27.94 (27.83 to 28.01) | 18.66 (18.64 to 18.69) | 8.925 |
+| Plain C | 18.77 (18.72 to 19.15) | 22.27 (22.11 to 22.36) | 8.665 |
+
+Depth 6 improved decode by about 49% over both adjacent controls and saved about 3.6 seconds per complete task. Its first-token delay grew by 2.92% and 2.99%. The bootstrap ratios for first-token delay extend slightly beyond 3%, so that metric sits at the promotion threshold. The fresh-code panel also regressed. See raw/control-a, raw/depth6-b and raw/control-c for the request-level observations.

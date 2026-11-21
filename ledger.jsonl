@@ -12,3 +12,9 @@
 {"date": "2026-11-21", "experiment": "ngram-mod-visible", "config": "ngram-mod", "correct": true, "wall_s": 22.62300099999993, "pi_tps": 18.66669612237064, "raw": "raw/ngram-mod-visible"}
 {"date": "2026-11-21", "experiment": "mlx-structured", "config": "mlx-lm patched", "correct": false, "wall_s": 28.235808750000615, "pi_tps": 19.706573641505592, "raw": "raw/mlx-structured"}
 {"date": "2026-11-21", "experiment": "oq4-off", "config": "oMLX 0.8.2 native MTP off", "correct": true, "wall_s": 40.23945529199955, "pi_tps": 24.039408866995075, "raw": "raw/oq4-off"}
+{"date": "2026-11-21", "experiment": "iq3-pi", "status": "completed", "command": "ENGINE_BUILD=12600 python queue-gpu.py iq3:primary:iq3-pi", "raw": "raw/iq3-pi"}
+{"date": "2026-11-21", "experiment": "oq4-fixed3", "status": "completed", "command": "python omlx_run.py --state NEW --weights OQ4 --depth 3 RUN", "raw": "raw/oq4-fixed3"}
+{"date": "2026-11-21", "experiment": "oq4-adaptive6", "status": "completed", "command": "python omlx_run.py --state NEW --weights OQ4 --depth 6 --adaptive RUN", "raw": "raw/oq4-adaptive6"}
+{"date": "2026-11-21", "experiment": "control-a", "command": "python run.py plain RUN python primary.py RUN", "correct": 6, "scored": 6, "median_tps": 18.73505897162667, "median_wall": 22.318117770999834, "raw": "raw/control-a"}
+{"date": "2026-11-21", "experiment": "depth6-b", "command": "python run.py dspark-6 RUN python primary.py RUN", "correct": 6, "scored": 6, "median_tps": 27.938425890327455, "median_wall": 18.662840687499738, "raw": "raw/depth6-b"}
+{"date": "2026-11-21", "experiment": "control-c", "command": "python run.py plain RUN python primary.py RUN", "correct": 6, "scored": 6, "median_tps": 18.770770628178767, "median_wall": 22.273812562500098, "raw": "raw/control-c"}
