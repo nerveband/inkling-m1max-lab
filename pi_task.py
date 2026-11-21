@@ -19,19 +19,24 @@ def run(out,held=False):
         git('worktree','add','-q','--detach',str(fixture),'HEAD')
         (base/'gate.json').write_text(json.dumps(dict(old=old,new=new,before=before,after=after)))
         model_id=os.environ.get('BENCH_MODEL_ID','inkling')
-        cfg=json.loads((ROOT/'configs/models.json').read_text())
+        bypass_proxy=os.getenv('BENCH_BYPASS_PROXY')=='1'
+        provider_file='pi-direct.json' if bypass_proxy else 'models.json'
+        cfg=json.loads((ROOT/'configs'/provider_file).read_text())
         cfg['providers']['inkling-local']['models'][0]['id']=model_id
         (agent/'models.json').write_text(json.dumps(cfg))
         env=dict(PATH=os.environ['PATH'],HOME=str(base),TMPDIR=tempfile.gettempdir(),PI_CODING_AGENT_DIR=str(agent),PI_OFFLINE='1',FIXTURE_GATE=str(base/'gate.json'),NO_COLOR='1')
         prompt=f'Read calc.py using read. Use edit to replace the exact substring `{old}` with `{new}` (exclude indentation). Run exactly `python3 -B check.py` using bash. When it passes, respond with exactly {final}. Use relative paths. Perform each step in order.'
         cli=['pi','--offline','--no-session','--no-approve','--no-context-files','--no-extensions','--no-skills','--no-mcp','--no-prompt-templates','--no-themes','-e',str(ROOT/'fixtures/bench.ts'),'--tools','read,edit,bash','--provider','inkling-local','--model',model_id,'--thinking','off','--mode','json','-p',prompt]
-        proxy=make_proxy(out); thread=threading.Thread(target=proxy.serve_forever,daemon=True); thread.start()
+        proxy=None if bypass_proxy else make_proxy(out)
+        if proxy:threading.Thread(target=proxy.serve_forever,daemon=True).start()
         try:
             t=time.monotonic()
             with (out/'pi.jsonl').open('w') as f, (out/'stderr').open('w') as e:
                 result=subprocess.run(cli,cwd=fixture,env=env,stdout=f,stderr=e,timeout=600)
             elapsed=time.monotonic()-t
-        finally: proxy.shutdown();proxy.server_close()
+        finally:
+            if proxy:
+                proxy.shutdown();proxy.server_close()
         events=[json.loads(s) for s in (out/'pi.jsonl').read_text().splitlines() if s.startswith('{')]
         calls=[e for e in events if e.get('type')=='tool_execution_start']
         verified=[e for e in events if e.get('type')=='tool_execution_end']

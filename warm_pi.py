@@ -7,6 +7,6 @@ from pi_task import run
 
 if __name__=='__main__':
     destination=pathlib.Path(sys.argv[1])
-    warm=probe()
+    warm=probe(32)
     (destination/'warm.json').write_text(json.dumps(warm))
     run(destination/'pi')

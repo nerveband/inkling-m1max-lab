@@ -29,6 +29,7 @@ def soak(destination):
                 prompt='Remember the code CEDAR83. Respond with only the code.' if index==0 else f'Checkpoint {index}. Respond with only the code from my first message.'
                 t=time.monotonic()
                 p=subprocess.run([*common,prompt],cwd=base,env=env,capture_output=True,text=True,timeout=300)
+                (destination/f'pi-turn-{index}.jsonl').write_text(p.stdout)
                 messages=[event['message'] for line in p.stdout.splitlines() if line.startswith('{') and (event:=json.loads(line)).get('type')=='message_end' and event['message'].get('role')=='assistant']
                 answer=''.join(part['text'] for part in messages[-1]['content'] if part['type']=='text').strip() if messages else ''
                 path=destination/f'request-{index}.json'

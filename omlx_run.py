@@ -25,8 +25,16 @@ if __name__=='__main__':
     if a.depth:
         setting['mtp_adaptive_max_depth' if a.adaptive else 'mtp_fixed_depth']=a.depth
     (state/'model_settings.json').write_text(json.dumps({'version':2,'models':{'inkling':setting}}))
-    binary=os.environ['OMLX_PYTHON']
-    command=['env','PYTHONPATH='+os.environ['OMLX_PYTHONPATH'],'HOME='+str(state),'OMLX_BASE_PATH='+str(state),binary,'-m','omlx.cli','serve','--base-path',str(state),'--model-dir',str(models),'--host','127.0.0.1','--port','18089','--headless']
+    app=os.environ.get('OMLX_APP')
+    if app:
+        resources=pathlib.Path(app).resolve()/'Contents/Resources'
+        runtime=resources/'Python'
+        binary=str(runtime/'cpython-3.11/bin/python3.11')
+        modules=os.pathsep.join(map(str,(resources,runtime/'framework-mlx-base/lib/python3.11/site-packages')))
+    else:
+        binary=os.environ['OMLX_PYTHON']
+        modules=os.environ['OMLX_PYTHONPATH']
+    command=['env','PYTHONPATH='+modules,'HOME='+str(state),'OMLX_BASE_PATH='+str(state),binary,'-m','omlx.cli','serve','--base-path',str(state),'--model-dir',str(models),'--host','127.0.0.1','--port','18089','--headless']
     if a.cache:
         cache=a.cache.resolve();cache.mkdir(parents=True,exist_ok=False)
         command+=['--paged-ssd-cache-dir',str(cache),'--paged-ssd-cache-max-size','2GB','--hot-cache-max-size','1GB']

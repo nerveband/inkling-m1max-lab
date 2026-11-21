@@ -1,6 +1,7 @@
 import hashlib, json, os, pathlib, sys, time
 from direct import post,tokens
 def needle(length):
+    budget=int(os.getenv('BENCH_RETRIEVAL_BUDGET','256'))
     codes=[hashlib.sha256(f'{length}:{i}:inkling'.encode()).hexdigest()[:10].upper() for i in range(3)]
     def prompt(n):
         lines=[f'Inventory {i}: sealed blue container.\n' for i in range(n)]
@@ -15,12 +16,12 @@ def needle(length):
     lo,hi=0,length//3
     while lo<hi:
         mid=(lo+hi+1)//2
-        if shape(prompt(mid))<=length-300: lo=mid
+        if shape(prompt(mid))<=length-budget-44: lo=mid
         else: hi=mid-1
     s=prompt(lo); observed=shape(s); t=time.monotonic()
-    r=post('/v1/chat/completions',dict(model='inkling',messages=[dict(role='user',content=s)],temperature=0,max_tokens=256,seed=17),timeout=3600)
+    r=post('/v1/chat/completions',dict(model='inkling',messages=[dict(role='user',content=s)],temperature=0,max_tokens=budget,seed=17),timeout=3600)
     answer=r['choices'][0]['message'].get('content','').strip()
-    return dict(target=length,input=observed,usage=r.get('usage'),timings=r.get('timings'),answer=answer,expected=' '.join(codes),passed=answer==' '.join(codes),wall_s=time.monotonic()-t)
+    return dict(target=length,input=observed,output_budget=budget,finish=r['choices'][0].get('finish_reason'),usage=r.get('usage'),timings=r.get('timings'),answer=answer,expected=' '.join(codes),passed=answer==' '.join(codes),wall_s=time.monotonic()-t)
 if __name__=='__main__':
     with open(sys.argv[1],'x') as f:
         for x in sys.argv[2:]:

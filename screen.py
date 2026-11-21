@@ -1,5 +1,5 @@
 """Cheap source of equivalent greedy IDs before promoting any setting to a full leg."""
-import json,pathlib,sys
+import json,os,pathlib,sys
 from direct import request,panel
 from pi_task import run
 if __name__=='__main__':
@@ -9,3 +9,4 @@ if __name__=='__main__':
         (d/f'{i}-{kind}.json').write_text(json.dumps(r))
         print(kind,r['timings'],flush=True)
     run(d/'pi')
+    if os.getenv('BENCH_HELD_SCREEN')=='1':run(d/'pi-held',held=True)

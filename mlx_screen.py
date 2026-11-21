@@ -1,8 +1,8 @@
 """Screen the same synthetic Pi fixture, then the backend's direct stream."""
 import json,os,pathlib,sys,time,urllib.request
 from pi_task import run
-def probe():
-    body={'model':os.environ.get('BENCH_MODEL_ID','default_model'),'messages':[{'role':'user','content':'Implement a Python ring buffer class with iteration, resizing and tests. Return complete code.'}],'temperature':0,'max_tokens':256,'stream':True,'stream_options':{'include_usage':True}}
+def probe(max_tokens=256):
+    body={'model':os.environ.get('BENCH_MODEL_ID','default_model'),'messages':[{'role':'user','content':'Implement a Python ring buffer class with iteration, resizing and tests. Return complete code.'}],'temperature':0,'max_tokens':max_tokens,'stream':True,'stream_options':{'include_usage':True}}
     request=urllib.request.Request('http://127.0.0.1:18089/v1/chat/completions',data=json.dumps(body).encode(),headers={'Content-Type':'application/json'})
     first=None;usage={};pieces=[];reasoning=[];t=time.monotonic()
     with urllib.request.urlopen(request,timeout=900) as response:

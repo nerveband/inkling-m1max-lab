@@ -18,3 +18,7 @@
 {"date": "2026-11-21", "experiment": "control-a", "command": "python run.py plain RUN python primary.py RUN", "correct": 6, "scored": 6, "median_tps": 18.73505897162667, "median_wall": 22.318117770999834, "raw": "raw/control-a"}
 {"date": "2026-11-21", "experiment": "depth6-b", "command": "python run.py dspark-6 RUN python primary.py RUN", "correct": 6, "scored": 6, "median_tps": 27.938425890327455, "median_wall": 18.662840687499738, "raw": "raw/depth6-b"}
 {"date": "2026-11-21", "experiment": "control-c", "command": "python run.py plain RUN python primary.py RUN", "correct": 6, "scored": 6, "median_tps": 18.770770628178767, "median_wall": 22.273812562500098, "raw": "raw/control-c"}
+{"date": "2026-11-21", "experiment": "qual32-d6", "status": "partial-qualification", "raw": "raw/qual32-d6"}
+{"date": "2026-11-21", "experiment": "oq4-cache-off", "status": "screen", "raw": "raw/oq4-cache-off"}
+{"date": "2026-11-21", "experiment": "oq4-cache-fixed3", "status": "screen", "raw": "raw/oq4-cache-fixed3"}
+{"date": "2026-11-21", "experiment": "oq4-cache-adaptive6", "status": "screen", "raw": "raw/oq4-cache-adaptive6"}
