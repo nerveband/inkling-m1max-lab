@@ -1,0 +1,1 @@
+{"args":["--host","127.0.0.1","--port","18089","-a","inkling","-c","32768","-np","1","-ngl","all","--jinja","--metrics","--slots","--reasoning","off","--temp","0","--seed","17"],"target":"Inkling-2-Mini-UD-Q4_K_M.gguf"}
