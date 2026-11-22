@@ -59,6 +59,9 @@ def main():
     parser.add_argument('--sort-small-expert-batches',action='store_true',help='Experimentally sort expert work at 32 indices instead of 64.')
     parser.add_argument('--m1-fast',action='store_true',help='Enable verified M1 Max fused decode, verify attention, and prefill optimizations.')
     parser.add_argument('--affine4',action='store_true',help='Convert NVFP4 experts to affine 4-bit (group size 64) at load time.')
+    parser.add_argument('--hot-cache-max-size',default='8GB',help='Hot prefix KV cache size in RAM (default: 8GB).')
+    parser.add_argument('--default-temp',type=float,default=0.0,help='Default sampling temperature written to state/settings.json (default: 0.0).')
+    parser.add_argument('--features',default=None,help='Optional comma-separated overlay feature list overriding M1_FAST_FEATURES.')
     args=parser.parse_args()
     weights,state,cache=(p.expanduser().resolve() for p in (args.weights,args.state,args.cache))
     if not (weights/'mtp.safetensors').is_file():
@@ -75,15 +78,26 @@ def main():
     config={'mtp_enabled':args.depth>0,'max_context_window':args.context}
     if args.depth:config['mtp_fixed_depth']=args.depth
     (state/'model_settings.json').write_text(json.dumps({'version':2,'models':{'inkling':config}},indent=2)+'\n')
+    settings_path=state/'settings.json'
+    settings_data={}
+    if settings_path.is_file():
+        try:settings_data=json.loads(settings_path.read_text())
+        except Exception:settings_data={}
+    settings_data.setdefault('sampling',{})['temperature']=float(args.default_temp)
+    settings_path.write_text(json.dumps(settings_data,indent=2)+'\n')
     with application(args.app,args.dmg) as app, tempfile.TemporaryDirectory(prefix='inkling-kernel-') as overlay:
         contents=app/'Contents'
         with (contents/'Info.plist').open('rb') as f:
             if plistlib.load(f)['CFBundleShortVersionString']!='0.8.2':raise SystemExit('Expected oMLX 0.8.2.')
         resources=contents/'Resources';py=resources/'Python'
         modules=os.pathsep.join(map(str,(resources,py/'framework-mlx-base/lib/python3.11/site-packages')))
-        if args.m1_fast or args.affine4:
+        feats=set()
+        if args.features or args.m1_fast or args.affine4:
             from m1_overlay import M1_FAST_FEATURES, PATCHES, build_overlay
-            feats=set(M1_FAST_FEATURES) if args.m1_fast else set()
+            if args.features:
+                feats={x.strip() for x in args.features.split(',') if x.strip()}
+            elif args.m1_fast:
+                feats=set(M1_FAST_FEATURES)
             if args.affine4:feats.add('affine4')
             build_overlay(Path(overlay),feats,resources)
             modules=os.pathsep.join((overlay,str(PATCHES),modules))
@@ -91,7 +105,9 @@ def main():
             sorted_expert_package(resources,Path(overlay))
             modules=overlay+os.pathsep+modules
         environment=dict(os.environ,PYTHONPATH=modules,HF_HUB_OFFLINE='1',HF_HOME=str(cache/'hub'),PYTHONDONTWRITEBYTECODE='1')
-        command=[str(py/'cpython-3.11/bin/python3.11'),'-m','omlx.cli','serve','--base-path',str(state),'--model-dir',str(models),'--host','127.0.0.1','--port','18089','--max-concurrent-requests',str(args.slots),'--headless','--paged-ssd-cache-dir',str(cache/'kv'),'--paged-ssd-cache-max-size','2GB','--hot-cache-max-size','1GB']
+        if 'suffix_policy' in feats:
+            environment['OMLX_MTP_DRAFT_POLICY']='1'
+        command=[str(py/'cpython-3.11/bin/python3.11'),'-m','omlx.cli','serve','--base-path',str(state),'--model-dir',str(models),'--host','127.0.0.1','--port','18089','--max-concurrent-requests',str(args.slots),'--headless','--paged-ssd-cache-dir',str(cache/'kv'),'--paged-ssd-cache-max-size','2GB','--hot-cache-max-size',str(args.hot_cache_max_size)]
         with subprocess.Popen(command,env=environment,start_new_session=True) as server:
             def stop(*_):
                 if server.poll() is None:server.terminate()

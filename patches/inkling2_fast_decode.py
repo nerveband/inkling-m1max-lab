@@ -318,7 +318,7 @@ def moe_combine_conv_res(
     conv_scale: float,
     residual: mx.array,
 ):
-    """Fuse moe_combine + short mlp_conv + float32 residual add for B=1, L<=8."""
+    """Fuse moe_combine + short mlp_conv + float32 residual add for B=1, L<=16."""
     kernel = _kernel(
         "omlx_inkling2_moe_combine_conv_res",
         _COMBINE_CONV_RES_SRC,
@@ -511,8 +511,8 @@ def decode_mask(rel: mx.array, s: int):
 # Decode runs each selected expert as a 1-row GEMV. MLX's ``gather_qmm`` pays a
 # launch per selected expert and the epilogue adds two more launches, so one
 # layer's routed experts cost ~160 us. These two kernels do the same arithmetic
-# — E2M1 codes times E4M3 block scales times the per-expert tensor scale,
-# accumulated in FP32 — in one launch for gate+up+SwiGLU and one for
+# - E2M1 codes times E4M3 block scales times the per-expert tensor scale,
+# accumulated in FP32 - in one launch for gate+up+SwiGLU and one for
 # down+combine. Used only for a single row (plain decode); everything else keeps
 # ``gather_qmm``.
 

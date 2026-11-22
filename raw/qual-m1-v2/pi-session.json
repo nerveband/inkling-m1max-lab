@@ -1,0 +1,44 @@
+[
+  {
+    "turn": 1,
+    "history_user_messages": 1,
+    "answer": "CEDAR83",
+    "wall_s": 5.1869069160020445,
+    "passed": true
+  },
+  {
+    "turn": 2,
+    "history_user_messages": 2,
+    "answer": "CEDAR83",
+    "wall_s": 2.444842167002207,
+    "passed": true
+  },
+  {
+    "turn": 3,
+    "history_user_messages": 3,
+    "answer": "CEDAR83",
+    "wall_s": 1.9214457080015563,
+    "passed": true
+  },
+  {
+    "turn": 4,
+    "history_user_messages": 4,
+    "answer": "CEDAR83",
+    "wall_s": 1.9101232499961043,
+    "passed": true
+  },
+  {
+    "turn": 5,
+    "history_user_messages": 5,
+    "answer": "CEDAR83",
+    "wall_s": 1.9610541660003946,
+    "passed": true
+  },
+  {
+    "turn": 6,
+    "history_user_messages": 6,
+    "answer": "CEDAR83",
+    "wall_s": 1.8945420419986476,
+    "passed": true
+  }
+]

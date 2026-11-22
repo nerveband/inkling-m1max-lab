@@ -2,13 +2,13 @@
 
 Every test in this document ran on a 24-core Apple M1 Max with 64 GiB of unified memory on macOS 27.0.1.
 
-The fastest setup that passes every quality test uses oMLX 0.8.2 with custom Metal kernels (`--m1-fast`) and affine 4-bit experts (`--affine4`) at draft depth 6 on `omlx-oq4`. Affine 4-bit is a 4-bit number format that uses a scale and offset for each group of 64 weights. Speculative drafting is a method where a small draft head guesses future tokens and the main model tests them in one pass.
+The fastest setup that passes every quality test uses oMLX 0.8.2 with the promoted v2 M1 Max Metal kernel stack (`--m1-fast`), affine 4-bit experts (`--affine4`), an 8 GB RAM hot prefix cache (`--hot-cache-max-size 8GB`), and default greedy coding temperature `0.0` at draft depth 6 on `omlx-oq4`. Affine 4-bit is a 4-bit number format that uses a scale and offset for each group of 64 weights. Speculative drafting is a method where a small draft head guesses future tokens and the main model tests them in one pass.
 
-On an idle GPU, this setup reaches 49.43 tokens per second in 7.14 s on a primed Pi screen. On a fresh 6-task controlled A/B/A test, it hits a median of 49.09 tokens per second in 13.17 s. Stock `oQ4e` controls reached 37.87 and 38.00 tokens per second on the same test. In direct normal Pi use, it hits 50.08 tokens per second in the native model window across 5 turns in 9.39 s.
+On an idle GPU in a controlled 6-task A/B/A test ([v2 Pi compare](raw/m1-v2-compare/pi-compare.txt)), v2 reaches a median of **64.21 tokens per second** in 9.76 s, beating the prior v1 M1 Max stack at 49.45 and 49.39 tokens per second in 12.92 to 12.96 s (+30.0%) and stock `oQ4e` at 37.87 tokens per second (+69.6%). On 6-sample direct HTTP runs ([v2 mix summary](raw/m1-v2-compare/mix-aba-summary.json)), default mode reaches 42.50 tok/s on code generation, 57.45 tok/s on code edits (0.212 s warm TTFT versus 6.651 s on v1), and 30.21 tok/s on open prose. With `enable_thinking=false` and `generation_opener=content`, coding reaches **61.36 tok/s** on code generation (0.077 s warm TTFT) and **64.98 tok/s** on code edits (0.130 s warm TTFT).
 
-Running `--m1-fast` on the lighter `omlx-oq3` 3-bit weights hits 49.38 tokens per second in 7.28 s in direct normal Pi. That beats the earlier 39.67 tokens per second and 8.48 s baseline. We promote `omlx-oq4` instead of `omlx-oq3` because `omlx-oq4` passed all 6 reopened no-tool Pi turns, while `omlx-oq3` missed 2 of 6 turns.
+Running v1 `--m1-fast` on the lighter `omlx-oq3` 3-bit weights previously hit 49.38 tokens per second in 7.28 s in direct normal Pi. We promote `omlx-oq4` instead of `omlx-oq3` because `omlx-oq4` passed all 6 reopened no-tool Pi turns, while `omlx-oq3` missed 2 of 6 turns.
 
-Evidence links: [REPRODUCE.md](REPRODUCE.md) · [Promoted screen](raw/speed-m1-final-affine4/pi-scores.json) · [Controlled A/B/A](raw/m1-final-compare/compare.txt) · [Qualification](raw/qual-m1-final) · [Direct 4-bit Pi](raw/public-m1-final-pi/direct-pi.json) · [Direct 3-bit Pi](raw/public-m1-oq3-pi/direct-pi.json)
+Evidence links: [REPRODUCE.md](REPRODUCE.md) · [v2 Pi A/B/A](raw/m1-v2-compare/pi-compare.txt) · [v2 Mix A/B/A](raw/m1-v2-compare/mix-aba-summary.json) · [v2 Qualification](raw/qual-m1-v2) · [v1 A/B/A](raw/m1-final-compare/compare.txt) · [v1 Qualification](raw/qual-m1-final)
 
 ## Main benchmark results
 
@@ -18,71 +18,54 @@ Evidence links: [REPRODUCE.md](REPRODUCE.md) · [Promoted screen](raw/speed-m1-f
 | Stock GGUF `UD-Q4_K_M`, DSpark depth 6 | 27.94 | 18.66 s | 6 Pi tasks |
 | Stock oMLX `oQ4e`, draft off | 23.83 | 18.27 s | 6 Pi tasks |
 | Stock oMLX `oQ4e`, draft depth 3 | 33.73 | 15.77 s | 6 Pi tasks |
-| Stock oMLX `oQ4e`, draft depth 6 | 38.17 | 15.09 s | 6 Pi tasks (`37.87` and `38.00` in repeat A/C controls) |
-| oMLX `oQ3e` with `sort32`, primed | 40.94 | 8.16 s | 1 primed screen (`39.67 tok/s`, `8.48 s` direct Pi) |
-| oMLX `oQ4e` `--m1-fast` only, depth 6, primed | 42.26 | 9.62 s | 1 primed screen (keeps NVFP4 experts) |
-| oMLX `oQ4e` `--m1-fast --affine4` d=6 (A/B/A) | 49.09 | 13.17 s | 6 fresh Pi tasks (`47.76` to `49.39`, +29.4%) |
-| oMLX `oQ4e` `--m1-fast --affine4` d=6 (primed) | 49.43 | 7.14 s | Primed screen (`178` tokens, `3,323 ms` backbone) |
-| oMLX `oQ4e` `--m1-fast --affine4` d=6 (direct Pi) | 50.08 | 9.39 s | Direct prewarmed Pi (`213` tokens, 5 turns) |
+| Stock oMLX `oQ4e`, draft depth 6 | 38.17 | 15.09 s | 6 Pi tasks (`37.87` and `38.00` in v1 A/C controls) |
+| oMLX 0.8.2 `oQ4e --m1-fast --affine4` (v1) | 49.45 | 12.96 s | 6 Pi tasks (`49.09` v1 promo, `49.45/49.39` v2 A/C) |
+| **oMLX 0.8.2 `oQ4e --m1-fast --affine4` (v2)** | **64.21** | **9.76 s** | **6 Pi tasks (`63.97` to `64.68`, +30.0% vs v1)** |
+| **v2 Direct HTTP, default thinking (n=6)** | **42.50 / 57.45 / 30.21** | **0.21 s warm TTFT** | **code_gen / code_edit / prose** |
+| **v2 Direct HTTP, `--no-think` opener (n=6)** | **61.36 / 64.98 / 27.77** | **0.08 to 0.13 s TTFT** | **code_gen / code_edit / prose** |
 | oMLX `oQ3e` `--m1-fast` d=6 (direct Pi) | 49.38 | 7.28 s | Direct prewarmed Pi (`178` tokens, 4 turns) |
 | `LookAtMyQuant` 8.9 GB + v2 draft (`sg=16` shim) | 16.01 to 26.06 | cli-only | Code `26.06`, edit `22.92`, prose `16.01` |
-| GGUF n-gram lookup 256 + DSpark 6 (copy prompt) | 114.39 | n/a | 6 direct 2K copy prompts only |
 
-## Why the promoted setup is faster
+## Why the promoted v2 setup is faster
 
 KV cache is memory that stores earlier prompt and reply states so the model skips re-reading them. Prefix cache is saved KV cache reused when prompts start with the same text. Greedy decoding is picking the single top next token on every step.
 
-Nine code changes work together inside [m1_overlay.py](m1_overlay.py) and [patches](patches):
+The promoted `M1_FAST_FEATURES` overlay ([m1_overlay.py](m1_overlay.py)) layers 19 verified kernels and runtime fixes onto oMLX 0.8.2:
 
-1. `--affine4` converts NVFP4 experts into affine 4-bit (`group_size=64`) experts during model load. On M1 Max, MVFP4 dequantize code runs slower than M1 affine 4-bit MLX kernels. Keeping NVFP4 with `--m1-fast` hit 42.26 tok/s, while adding `--affine4` jumped to 49.43 tok/s.
-2. `sort32` sorts small MoE batches at 32 indices instead of 64.
-3. `m1_attn` replaces draft-test attention with a custom Split-K Metal kernel (`verify_banded_sink_attention`). It caps `nsplits <= 64` for prompts longer than 8,192 tokens. Against the reference implementation, it measured `cos=0.99999964` (`max_err=0.000031`) at 31,954 tokens and `cos=0.99999958` (`max_err=0.000015`) at 64,717 tokens.
-4. `fast_decode` and `verify_compile` fuse decode and draft-test steps and remove extra tensor copies inside [patches/inkling2_fast_decode.py](patches/inkling2_fast_decode.py).
-5. `split_in_proj` splits the combined attention input projection into separate linear layers for faster decode and draft-test shapes.
-6. `skip_lm_head` skips computing vocabulary logits on non-last prefill tokens. Logits are raw token scores before picking a word.
-7. `fast_greedy` moves greedy token selection into a lightweight Metal kernel.
-8. `prefill_pad64` pads prefill length up to multiples of 64 to keep Metal matrix kernels aligned.
-9. `caps` adjusts Metal and MLX allocator caps in oMLX.
+1. `m1_qmv_moe` ([m1_qmv_moe.py](patches/m1_qmv_moe.py)) replaces MLX `gather_sort`, `gather_qmm`, and `scatter_unsort` on `M=1..16` with a register-diet 5-stage Metal MoE pipeline (3 base pointers, strict `C==2` token pair splitting with sequential activation reuse, `0x64006400u` `half4` unpack, and a 3-kernel `DIRECT_M1` single-row path). On a 48-visit BF16 chain, it cuts `M=1` MoE time from `11.87 ms` to `7.96 ms` (`1.49x`) and `M=7` from `58.76 ms` to `43.61 ms` (`1.35x`).
+2. `verify_flush`, `bounded_cache`, `bf16_loop_ctrl`, and `prefill_fast` remove per-layer stalls inside the main transformer, cut M1 loop controller cost by about `10 ms` per verify cycle across every workload, and cap KV state buffers cleanly.
+3. `predraft_fix`, `dspark_2bit`, `draft4`, and `fuse_draft_qkv` fix the recurrent Markov starting row and compress speculative head screening while keeping exact draft acceptance.
+4. `ttft_fixes` (`early_first_emit`, `enable_thinking_fix`, `prompt_tail_cache`) keeps prefix cache hits intact across prompt tails and supports `generation_opener=content` with `enable_thinking=false`, cutting warm 4K code-edit TTFT from `6.651 s` on v1 to `0.130 s` to `0.212 s`.
+5. `--hot-cache-max-size 8GB` keeps multi-gigabyte coding prefixes in RAM instead of spilling to SSD, and `--default-temp 0.0` ensures `fast_greedy` activates when clients omit temperature.
+6. All 9 v1 kernels remain active: `--affine4`, `sort32`, `m1_attn` (`verify_banded_sink_attention` with `nsplits <= 64`, `cos=0.99999964` at 32K and `cos=0.99999958` at 64K), `fast_decode`, `verify_compile`, `split_in_proj`, `skip_lm_head`, `fast_greedy`, `prefill_pad64`, and `caps`.
 
-In the promoted A/B/A test ([compare.txt](raw/m1-final-compare/compare.txt)), Candidate B passed 6 of 6 tasks on an idle GPU. It scored median 49.09 tok/s (`47.76` to `49.39`), wall time 13.17 s, and TTFT (time to first token) 4.986 s. Control A scored 37.87 tok/s, 15.31 s wall time, and 5.448 s TTFT. Control C scored 38.00 tok/s, 15.39 s wall time, and 5.427 s TTFT.
+In the promoted v2 A/B/A test ([pi-compare.txt](raw/m1-v2-compare/pi-compare.txt)), Candidate B passed 6 of 6 tasks on an idle GPU with median `64.21 tok/s` (`63.97` to `64.68`), wall time `9.76 s`, and TTFT `4.793 s`. Control A scored `49.45 tok/s` (`12.96 s`) and Control C scored `49.39 tok/s` (`12.92 s`), with 95% bootstrap decode intervals of `1.2952` to `1.3057` and `1.2970` to `1.3073` over v1. Always test on an idle GPU because earlier v1 tests during 54% to 62% desktop GPU load slowed Control C down to `29.92 tok/s`.
 
-Bootstrap 95% intervals for Candidate B over Controls A and C were `1.2723` to `1.3014` and `1.2700` to `1.3037` for decode speed. Earlier tests taken during 54% to 62% desktop GPU load slowed Leg B down to 47.19 tok/s median and Control C down to 29.92 tok/s. Test on an idle GPU when comparing speeds.
-
-## Quality and long context tests
+## Quality and long context tests (v2)
 
 Memory pressure is a macOS signal that shows how full RAM is. Swap is disk space used when RAM fills up.
 
-With `--context 32768 --slots 1` ([raw/qual-m1-final](raw/qual-m1-final)), the promoted `oQ4e` stack passed all 6 quality gates at pressure level 1 with zero swap growth and 32.06 GB peak GPU memory:
+With `--context 32768 --slots 1` ([raw/qual-m1-v2](raw/qual-m1-v2)), the promoted v2 `oQ4e` stack passed all 6 quality gates at pressure level 1 with zero swap growth (3365.62 MiB flat) and 22.75 GB peak GPU memory (down from 32.06 GB on v1):
 
 - Reasoning separation passed (`391` tokens).
-- Primed Pi task passed in 12.74 s.
-- Held-out Pi task passed in 11.23 s at 51.74 tok/s.
-- Ordered key retrieval passed at 15,569 tokens (310.35 prefill, 33.86 decode tok/s, 58.52 s). It also passed at 31,954 tokens (289.39 prefill, 30.02 decode tok/s, 118.84 s).
+- Primed Pi task passed in `9.47 s` (down from `12.74 s` on v1).
+- Held-out Pi task passed in `10.46 s` (down from `11.23 s` on v1).
+- Ordered key retrieval passed at 15,569 tokens (`326.81` prefill, `43.56` decode tok/s, `51.95 s`) and at 31,954 tokens (`306.65` prefill, `43.33` decode tok/s versus `30.02` on v1, `109.96 s`).
 - A 12-turn HTTP conversation passed 12 of 12 turns.
 - A reopened 6-turn no-tool Pi session passed all 6 of 6 turns.
 
-In an isolated `--context 65536 --slots 1` run ([needle-64k.json](raw/qual-m1-final/needle-64k.json)), key retrieval at 64,717 input tokens passed at pressure level 1. Peak GPU memory was 41.28 GB with zero swap growth. It reached 249.81 tok/s prefill, 20.19 tok/s decode, and 268.01 s total wall time. Stock `oQ4e` previously ran the same prompt at 15.87 tok/s decode in 307.58 s.
-
-An earlier `--context 65536 --slots 2` test run before adding the `nsplits <= 64` cap hit macOS pressure level 2 at 41.64 GB GPU memory during 64K draft testing and stopped. Setting `--slots 1` and keeping `nsplits <= 64` avoids that spike.
+In an isolated `--context 65536 --slots 1` run ([needle-64k.json](raw/qual-m1-v2/needle-64k.json)), key retrieval at 64,717 input tokens passed all 3 keys at pressure level 1 with zero swap growth (3341.62 MiB flat) and 24.39 GB peak GPU memory (down from 41.28 GB on v1). It reached `270.61 tok/s` prefill, **37.15 tok/s decode** (versus `20.19 tok/s` on v1 and `15.87 tok/s` stock), and `246.81 s` total wall time.
 
 ## Ideas tested and rejected
 
-We tested many ideas from hardware theory and public posts. Almost all of them hurt speed or broke tool calls on M1 Max:
+We tested many ideas from hardware theory and public posts and rejected the ones that hurt speed or quality on M1 Max:
 
-- Draft depth sweep on M1 fast stack: depth 3 hit 32.89 tok/s (`9.05 s`), and depth 4 hit 35.95 tok/s (`8.61 s`). Depth 5 hit 36.71 tok/s (`8.49 s`), and depth 6 reached 48.74 to 49.43 tok/s (`7.14` to `7.59 s`). Depth 7 fell back to 37.10 tok/s (`8.62 s`), so depth 6 is the clear winner.
-- `dspark_fast` (`draft4`, fused draft QKV, and `markov_topk=256` vocab shortlist): acceptance fell from `142/156` to `128/165` and speed dropped to `34.52` to `34.66 tok/s` (`8.91` to `8.95 s`).
-- `subwarp_moe`: slower at `47.93 tok/s` (`7.58 s`).
-- `ctx_copy` on `affine4`: slower at `48.74 tok/s` (`8.86 s`, generated 218 tokens).
-- `fuse_draft_qkv` alone: slower at `48.60 tok/s` (`7.56 s`).
-- `caps200`: slightly higher wall time at `49.35 tok/s` (`7.71 s`).
-- `fuse_moe_conv_res` (`moe_combine_conv_res`): mathematically exact (`max_err=0.0`), but slower at `46.28 tok/s` (`7.55 s`).
-- `loom_draft_head` (4-bit draft head + Markov matrix): regressed to `43.83 tok/s` (`8.08 s`).
-- `attn4` (4-bit attention weights): regressed to `43.72 tok/s` (`8.20 s`).
-- `margin30` (`max_logit_gap=0.30`): slowed wall time to `8.28 s` (`48.86 tok/s`).
-- `top6` static routing and `top6+margin30`: both failed strict Pi task correctness (`correct=false`), even though `top6+margin30` printed at `51.43 tok/s` (`13.32 s`).
-- `oQ2.5e` (2.5-bit experts): slower than `oQ3e` at `25.54 tok/s` fresh and `25.36 tok/s` primed.
-- FP16 expert casting: printed repeated punctuation at `49.61 tok/s` and called zero tools (`correct=false`).
-- N-gram lookup 256 + DSpark 6 on GGUF: hit `114.39 tok/s` on direct 2K copy tasks, yet dropped to `15.44 tok/s` on fresh code and `24.69 tok/s` (`19.74 s`) on Pi tasks.
+- `fp8_kv_full` (FP8 E4M3 KV cache on v2): Raised `code_gen` to `48.93` and `open_prose` to `32.95 tok/s` and passed 16K and 32K retrieval, yet drifted on turn 1 of the reopened no-tool Pi session (`5/6` with an empty content turn) and slowed Pi warm and held checks to `12.09 s` and `13.38 s`. Dropped from the promoted stack to protect strict `6/6` parity.
+- `suffix_policy` (`OMLX_MTP_DRAFT_POLICY=1`): Raised Pi to `64.95` and `open_prose` to `33.71 tok/s`, yet dropped `code_gen` from `48.93` to `36.34 tok/s` and `code_edit` from `55.57` to `51.63 tok/s` due to plain `d0=44` fallback cycles. Dropped from default Inkling settings.
+- Dropping `bf16_loop_ctrl` (`fast_decode` controller only): Added about `10 ms` per verify cycle across every workload (`code_gen` dropped `50.67` to `42.12`, `code_edit` `56.12` to `40.74`, Pi `59.76` to `53.07`). Kept `bf16_loop_ctrl` enabled.
+- Draft depth sweep on M1 fast v1 stack: depth 3 hit `32.89 tok/s` (`9.05 s`), depth 4 hit `35.95 tok/s` (`8.61 s`), depth 5 hit `36.71 tok/s` (`8.49 s`), depth 6 reached `48.74` to `49.43 tok/s` (`7.14` to `7.59 s`), and depth 7 fell back to `37.10 tok/s` (`8.62 s`).
+- `dspark_fast` (`draft4`, fused draft QKV, and `markov_topk=256` vocab shortlist): acceptance fell from `142/156` to `128/165` and speed dropped to `34.52` to `34.66 tok/s`.
+- `subwarp_moe` (`47.93 tok/s`), `ctx_copy` on `affine4` (`48.74 tok/s`), `fuse_draft_qkv` alone (`48.60 tok/s`), `caps200` (`49.35 tok/s`), `fuse_moe_conv_res` (`46.28 tok/s`), `loom_draft_head` (`43.83 tok/s`), `attn4` (`43.72 tok/s`), `margin30` (`48.86 tok/s`), `top6` and `top6+margin30` (`correct=false`), `oQ2.5e` (`25.54 tok/s`), and FP16 expert casting (`correct=false`): all failed speed or correctness checks.
 
 ## Community X and Hugging Face leads
 

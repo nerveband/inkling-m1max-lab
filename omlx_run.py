@@ -45,7 +45,11 @@ if __name__=='__main__':
                 p_err='OMLX_APP must be set when using --m1-fast or --affine4.'
                 raise SystemExit(p_err)
             from m1_overlay import M1_FAST_FEATURES, PATCHES, build_overlay
-            feats=set(M1_FAST_FEATURES) if a.m1_fast else set()
+            raw_feats=os.environ.get('OMLX_OVERLAY_FEATURES')
+            if raw_feats:
+                feats={x.strip() for x in raw_feats.split(',') if x.strip()}
+            else:
+                feats=set(M1_FAST_FEATURES) if a.m1_fast else set()
             if a.affine4:feats.add('affine4')
             build_overlay(pathlib.Path(overlay_tmp),feats,resources)
             modules=os.pathsep.join((overlay_tmp,str(PATCHES),modules))
