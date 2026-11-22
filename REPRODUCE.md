@@ -37,7 +37,7 @@ To start the promoted server in a terminal on port `18089`, run:
 python3.12 serve_omlx.py --dmg "$OMLX_DMG" \
   --weights "$MODEL_DIR/omlx-oq4" --state "$PWD/inkling-m1-oq4-state" \
   --cache "$PWD/inkling-m1-oq4-kv" --depth 6 --context 65536 --slots 1 \
-  --m1-fast --affine4
+  --m1-fast --affine4 --hot-cache-max-size 8GB --default-temp 0.0
 ```
 
 Leave that terminal open while testing. Press `Ctrl-C` to stop the server and detach the disk image.
@@ -53,7 +53,12 @@ python3.12 serve_omlx.py --dmg "$OMLX_DMG" \
 
 ## Connect Pi to the local server
 
-Open a second terminal in this checkout. Use a fresh temporary agent directory to test Pi cleanly:
+For interactive Pi use with working thinking levels (`/thinking` or `Shift+Tab`), copy [configs/pi-interactive.json](configs/pi-interactive.json) into `~/.pi/agent/models.json` (or merge its `providers` block):
+
+- `inkling-local` (`http://127.0.0.1:18089/v1`) sets `"reasoning": true`, `"thinkingFormat": "openai"`, and `"thinkingLevelMap"` mapping `off` through `max` to Inkling's native `reasoning_effort` values (`none`, `minimal`, `low`, `medium`, `high`, `xhigh`, `max`).
+- `omlx-ornith` (`http://127.0.0.1:8000/v1`) sets `"reasoning": true`, `"thinkingFormat": "qwen-chat-template"`, and hides middle levels so `off` and `high` toggle binary thinking cleanly on `Ornith-1.5-35B-A3B-Abliterated-MLX-4bit`.
+
+Keep [configs/pi-direct-64k.json](configs/pi-direct-64k.json) (`"reasoning": false`, `"maxTokens": 512`) only for deterministic `512`-token benchmarks. Open a second terminal in this checkout and use a fresh temporary agent directory to test that fixed benchmark setup:
 
 ```sh
 export PI_CODING_AGENT_DIR="$(mktemp -d)"

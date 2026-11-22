@@ -10,7 +10,7 @@ Start with the [interactive HTML dashboard](report.html), the [Inkling benchmark
 
 - [serve_omlx.py](serve_omlx.py) starts oMLX 0.8.2 with the promoted M1 Max kernel overlay in [m1_overlay.py](m1_overlay.py), an 8 GB hot prefix cache in RAM, and default temperature 0.0 for greedy coding runs.
 - [patches](patches) holds custom dual-bucket Metal MoE kernels in `m1_qmv_moe.py`, fast decode graph patches, and modular PR backports (`verify_flush`, `predraft_fix`, `dspark_2bit`, `bounded_cache`, `bf16_loop_ctrl`, `prefill_fast`, and `ttft_fixes`).
-- [configs](configs) holds Pi provider files and Pi extensions for deterministic generation and prefix warmup.
+- [configs](configs) holds Pi provider files (`pi-interactive.json` for interactive thinking levels and `pi-direct-64k.json` for fixed 512-token benchmarks) and Pi extensions for deterministic generation and prefix warmup.
 - [screen_m1.py](screen_m1.py), [omlx_run.py](omlx_run.py), and [omlx_leg.py](omlx_leg.py) run primed single screens and multi-trial A/B/A comparisons.
 - [raw](raw) and [ledger.jsonl](ledger.jsonl) hold raw JSON counters and pass or fail records from every run.
 
