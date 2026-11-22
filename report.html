@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apple M1 Max Local LLM Optimization Report - Inkling 2 Mini and Ornith-1.5-35B-A3B</title>
+<style>
+  :root {
+    --bg: #0b101b;
+    --bg-elev: #121a2b;
+    --bg-card: #162035;
+    --bg-chip: #1c2942;
+    --border: #253452;
+    --text: #e6edf7;
+    --muted: #96a8c6;
+    --accent: #38bdf8;
+    --accent-2: #a78bfa;
+    --green: #34d399;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --grid: rgba(148, 163, 184, 0.14);
+    --shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  [data-theme="light"] {
+    --bg: #f4f7fb;
+    --bg-elev: #ffffff;
+    --bg-card: #ffffff;
+    --bg-chip: #eaf0f8;
+    --border: #d4deec;
+    --text: #0f172a;
+    --muted: #475569;
+    --accent: #0284c7;
+    --accent-2: #7c3aed;
+    --green: #059669;
+    --amber: #d97706;
+    --red: #dc2626;
+    --grid: rgba(15, 23, 42, 0.10);
+    --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.55;
+  }
+  .wrap {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 24px 20px 64px;
+  }
+  header.hero {
+    background: linear-gradient(135deg, rgba(56,189,248,0.14), rgba(167,139,250,0.12));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 26px 28px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+  }
+  .hero-top {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--bg-chip);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+  .badge.ok { color: var(--green); border-color: rgba(52, 211, 153, 0.4); }
+  .badge.accent { color: var(--accent); border-color: rgba(56, 189, 248, 0.4); }
+  h1 {
+    margin: 4px 0 8px;
+    font-size: clamp(22px, 3vw, 32px);
+    letter-spacing: -0.02em;
+  }
+  .subtitle {
+    margin: 0;
+    color: var(--muted);
+    max-width: 820px;
+    font-size: 15px;
+  }
+  .btn {
+    background: var(--bg-chip);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+  }
+  .btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .btn.active {
+    background: var(--accent);
+    color: #06121f;
+    border-color: var(--accent);
+  }
+  .nav-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+  .nav-pills a {
+    text-decoration: none;
+    color: var(--muted);
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .nav-pills a:hover { color: var(--text); border-color: var(--accent); }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .kpi {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .kpi-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .kpi-val {
+    font-family: var(--mono);
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .kpi-val .accent { color: var(--green); }
+  .kpi-sub {
+    margin-top: 6px;
+    font-size: 12.5px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  section.panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+  }
+  .panel-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .panel-head h2 {
+    margin: 0;
+    font-size: 19px;
+    letter-spacing: -0.01em;
+  }
+  .panel-note {
+    margin: 0 0 14px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chart-box {
+    position: relative;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    overflow-x: auto;
+  }
+  svg.chart-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-width: 680px;
+  }
+  svg.flow-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-width: 720px;
+  }
+  .tooltip {
+    position: fixed;
+    pointer-events: none;
+    z-index: 999;
+    background: #090e18;
+    color: #f8fafc;
+    border: 1px solid #38bdf8;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 12.5px;
+    max-width: 310px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.1s ease;
+  }
+  .tooltip strong { color: #38bdf8; display: block; margin-bottom: 4px; }
+  .two-col {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 18px;
+  }
+  .impact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .impact-item {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .impact-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 13.5px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .impact-row .gain {
+    font-family: var(--mono);
+    color: var(--green);
+  }
+  .bar-track {
+    height: 10px;
+    background: var(--bg-chip);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), var(--green));
+  }
+  .bar-fill.purple {
+    background: linear-gradient(90deg, var(--accent-2), var(--accent));
+  }
+  .impact-desc {
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .search-input {
+    background: var(--bg-elev);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+    min-width: 240px;
+  }
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th, td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th {
+    background: var(--bg-elev);
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    position: sticky;
+    top: 0;
+  }
+  tr:last-child td { border-bottom: none; }
+  .num { font-family: var(--mono); white-space: nowrap; }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--mono);
+  }
+  .pill.kept { background: rgba(52, 211, 153, 0.16); color: var(--green); }
+  .pill.drop { background: rgba(248, 113, 113, 0.16); color: var(--red); }
+  .pill.info { background: rgba(56, 189, 248, 0.16); color: var(--accent); }
+
+  .cmd-card {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+  .cmd-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .cmd-title { font-size: 13.5px; font-weight: 700; }
+  pre {
+    margin: 0;
+    padding: 10px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    overflow-x: auto;
+    color: var(--text);
+  }
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12.5px;
+    margin-top: 28px;
+  }
+  @media print {
+    .btn, .tabs, .filter-bar, .nav-pills { display: none; }
+    section.panel, header.hero, .kpi { box-shadow: none; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="tooltip" id="tooltip"></div>
+<div class="wrap">
+  <header class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="badge-row">
+          <span class="badge ok">M1 Max 24-Core GPU | 64 GiB RAM</span>
+          <span class="badge accent">Track A: Inkling 2 Mini (oMLX 0.8.2 v2)</span>
+          <span class="badge accent">Track B: Ornith-1.5-35B-A3B (Splash 1.7.0-m1)</span>
+          <span class="badge ok">All Quality Gates + 6-Round A/B/A Passed</span>
+        </div>
+        <h1>M1 Max Inference Optimization and Benchmark Report</h1>
+        <p class="subtitle">
+          Complete engineering record of kernel development, community research validation, 6-round interleaved A/B/A proofs, long-context safety qualification, and isolated live deployment on Apple Silicon.
+        </p>
+      </div>
+      <button class="btn" id="themeToggle" type="button">Switch Theme</button>
+    </div>
+  </header>
+
+  <nav class="nav-pills">
+    <a href="#kpis">Key Wins</a>
+    <a href="#inkling-charts">Inkling 2 Mini Charts</a>
+    <a href="#ornith-charts">Ornith Showdown</a>
+    <a href="#biggest-wins">Where Wins Came From</a>
+    <a href="#flowcharts">Architecture Flowcharts</a>
+    <a href="#experiments">All Experiments &amp; Rejected Leads</a>
+    <a href="#live-proof">Quality &amp; Live Client Proof</a>
+    <a href="#quickstart">Quick Start</a>
+  </nav>
+
+  <section id="kpis" class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Inkling Pi Decode (6-Task A/B/A)</div>
+      <div class="kpi-val"><span class="accent">64.21</span> tok/s</div>
+      <div class="kpi-sub">Up from 37.87 stock (+69.6%) and 49.45 v1 (+30.0%) | 9.76 s wall</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Inkling HTTP Code Edit (--no-think)</div>
+      <div class="kpi-val"><span class="accent">64.98</span> tok/s</div>
+      <div class="kpi-sub">Warm TTFT: 6.651 s -&gt; 0.130 s (51x faster) | code_gen: 61.36 tok/s</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Live Pi Full Session Warm TTFT</div>
+      <div class="kpi-val"><span class="accent">0.93 s</span></div>
+      <div class="kpi-sub">11,245 prompt tokens | Cold 34.10 s -&gt; 0.93 s via 8 GB RAM hot cache</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Inkling 64K Context Decode</div>
+      <div class="kpi-val"><span class="accent">37.15</span> tok/s</div>
+      <div class="kpi-sub">64,717 tokens passed 3/3 keys | Peak GPU RAM 41.28 GB -&gt; 24.39 GB (-41%)</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Ornith-1.5 Code Edit (6-Round A/B/A)</div>
+      <div class="kpi-val"><span class="accent">196.41</span> tok/s</div>
+      <div class="kpi-sub">Up from 82.71 (20G baseline, 2.37x) | 2.09x vs oMLX FP16 (93.97)</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Ornith 5-Workload Geomean</div>
+      <div class="kpi-val"><span class="accent">102.13</span> tok/s</div>
+      <div class="kpi-sub">6/6 pass every task | Swap delta 0.0 MiB | 1.163x over oMLX (87.82)</div>
+    </div>
+  </section>
+
+  <section id="inkling-charts" class="panel">
+    <div class="panel-head">
+      <h2>Track A: Inkling 2 Mini Hill-Climb &amp; Workload Breakdown</h2>
+      <div class="tabs" id="inklingTabs">
+        <button class="btn active" data-tab="hillclimb" type="button">Pi Hill-Climb</button>
+        <button class="btn" data-tab="mix" type="button">HTTP Mix (Default vs --no-think)</button>
+        <button class="btn" data-tab="ttft" type="button">Warm TTFT &amp; 64K Memory</button>
+      </div>
+    </div>
+    <p class="panel-note" id="inklingNote">
+      Incremental M1 Max kernel and runtime progression verified on an idle 24-core GPU. Hover bars for exact cycle latencies and TTFT details.
+    </p>
+    <div class="chart-box">
+      <svg id="inklingSvg" class="chart-svg" viewBox="0 0 920 340"></svg>
+    </div>
+  </section>
+
+  <section id="ornith-charts" class="panel">
+    <div class="panel-head">
+      <h2>Track B: Ornith-1.5-35B-A3B Engine Showdown</h2>
+      <div class="tabs" id="ornithTabs">
+        <button class="btn active" data-tab="speed" type="button">5-Workload Decode (tok/s)</button>
+        <button class="btn" data-tab="ttft" type="button">Warm TTFT &amp; 6-Round Summary</button>
+      </div>
+    </div>
+    <p class="panel-note" id="ornithNote">
+      Side-by-side comparison from 20 GB baseline (83% experts resident) to 38 GB resident Splash 1.4, native oMLX 0.8.2 (FP16 and DFlash2 + m1_qmv_moe), and 6-round interleaved A/B/A winner Splash 1.7.0-m1.
+    </p>
+    <div class="chart-box">
+      <svg id="ornithSvg" class="chart-svg" viewBox="0 0 920 360"></svg>
+    </div>
+  </section>
+
+  <section id="biggest-wins" class="panel">
+    <div class="panel-head">
+      <h2>Where the Biggest Wins Came From</h2>
+    </div>
+    <p class="panel-note">
+      Measured contribution of each winning engineering change across both models.
+    </p>
+    <div class="two-col">
+      <div>
+        <h3 style="margin-top:0;font-size:16px;">Track A: Inkling 2 Mini Wins</h3>
+        <div class="impact-list" id="inklingWins"></div>
+      </div>
+      <div>
+        <h3 style="margin-top:0;font-size:16px;">Track B: Ornith-1.5-35B-A3B Wins</h3>
+        <div class="impact-list" id="ornithWins"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="flowcharts" class="panel">
+    <div class="panel-head">
+      <h2>Architecture &amp; Optimization Flowcharts</h2>
+      <div class="tabs" id="flowTabs">
+        <button class="btn active" data-tab="loop" type="button">1. Optimization Loop</button>
+        <button class="btn" data-tab="qmvmoe" type="button">2. m1_qmv_moe Metal Pipeline</button>
+        <button class="btn" data-tab="deploy" type="button">3. Isolated Live Mac Setup</button>
+      </div>
+    </div>
+    <p class="panel-note" id="flowNote">
+      Closed-loop hill-climbing flow used to profile, research, build kernels, qualify memory stability, prove wins with A/B/A testing, and deploy without breaking unrelated models.
+    </p>
+    <div class="chart-box" id="flowContainer"></div>
+  </section>
+
+  <section id="experiments" class="panel">
+    <div class="panel-head">
+      <h2>All Experiments, Kernel Levers, and Community Leads</h2>
+    </div>
+    <div class="filter-bar">
+      <div class="tabs" id="expFilters">
+        <button class="btn active" data-filter="all" type="button">All</button>
+        <button class="btn" data-filter="kept" type="button">Kept Winners</button>
+        <button class="btn" data-filter="drop" type="button">Rejected / Dropped</button>
+        <button class="btn" data-filter="inkling" type="button">Inkling</button>
+        <button class="btn" data-filter="ornith" type="button">Ornith</button>
+        <button class="btn" data-filter="community" type="button">Community Leads</button>
+      </div>
+      <input class="search-input" id="expSearch" type="search" placeholder="Search lever, repo, or metric...">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Track / Source</th>
+            <th>Experiment / Lever</th>
+            <th>Status</th>
+            <th>Measured Result</th>
+            <th>Key Finding</th>
+          </tr>
+        </thead>
+        <tbody id="expBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="live-proof" class="panel">
+    <div class="panel-head">
+      <h2>Verified Quality, Memory Safety &amp; Live Client Checks</h2>
+    </div>
+    <div class="two-col">
+      <div>
+        <h3 style="margin-top:0;font-size:15.5px;">Inkling 2 Mini Qualification &amp; Live Checks</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Check</th><th>Scope</th><th>Result</th></tr></thead>
+            <tbody>
+              <tr><td>32K 6-Gate Suite</td><td class="num">16K &amp; 32K needles, 12-turn soak, 6/6 Pi</td><td class="num"><span class="pill kept">6/6 PASS</span> 43.33 tok/s @ 32K, 22.75 GB GPU</td></tr>
+              <tr><td>64K Needle Retrieval</td><td class="num">64,717 input tokens (3 ordered keys)</td><td class="num"><span class="pill kept">PASS</span> 37.15 tok/s, 24.39 GB GPU, 0 swap delta</td></tr>
+              <tr><td>Pi A/B/A (v2 vs v1)</td><td class="num">6 runs/arm (Control A, Candidate B, Control C)</td><td class="num"><span class="pill kept">64.21 tok/s</span> CI 1.295x to 1.307x (v1: 49.45)</td></tr>
+              <tr><td>Live HTTP Mix (:18089)</td><td class="num">upgraded inkling-omlx, m1_qmv_moe engaged</td><td class="num"><span class="pill kept">PASS</span> 42.39/58.61/30.24 | no-think 61.19/63.41</td></tr>
+              <tr><td>Live Full-Ext Pi Session</td><td class="num">11,189 -&gt; 11,245 tokens via 8 GB hot cache</td><td class="num"><span class="pill kept">36.7x TTFT</span> Cold 34.10 s -&gt; Warm 0.93 s (52.4 tok/s)</td></tr>
+              <tr><td>Live Paseo Run</td><td class="num">paseo run --provider pi --model inkling-local/inkling</td><td class="num"><span class="pill kept">PASS</span> PASEO_OK @ 44.5 tok/s (temp agent deleted)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-top:0;font-size:15.5px;">Ornith-1.5-35B-A3B 6-Round A/B/A &amp; Integration</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Check</th><th>Scope</th><th>Result</th></tr></thead>
+            <tbody>
+              <tr><td>code_gen (6 rounds)</td><td class="num">Splash 1.7.0-m1 vs oMLX FP16</td><td class="num"><span class="pill kept">6/6 PASS</span> 103.69 vs 97.58 tok/s (1.063x)</td></tr>
+              <tr><td>code_edit (6 rounds)</td><td class="num">2.6K rewrite + DFlash2</td><td class="num"><span class="pill kept">6/6 PASS</span> 196.41 vs 93.97 tok/s (2.090x)</td></tr>
+              <tr><td>open_prose (6 rounds)</td><td class="num">Analytical systems essay</td><td class="num"><span class="pill info">6/6 PASS</span> 74.04 vs 98.28 tok/s (oMLX faster on prose)</td></tr>
+              <tr><td>warm_pi (6 rounds)</td><td class="num">9.6K prefix + 2 warm follow-ups</td><td class="num"><span class="pill kept">6/6 PASS</span> 97.50 tok/s, 232 ms warm TTFT (vs 649 ms)</td></tr>
+              <tr><td>needle_32k (6 rounds)</td><td class="num">30.6K context, dual passkeys</td><td class="num"><span class="pill kept">6/6 PASS</span> 75.26 vs 67.20 tok/s (1.120x)</td></tr>
+              <tr><td>System Memory &amp; Wrapper</td><td class="num">60 fresh-server runs + omlx.engine.splash</td><td class="num"><span class="pill kept">SAFE</span> Swap 3293.62 flat, pressure normal</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="quickstart" class="panel">
+    <div class="panel-head">
+      <h2>Quick Start Commands on This Mac</h2>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-top">
+        <span class="cmd-title">1. Start or check upgraded Inkling 2 Mini server (:18089, v2 M1-fast + 8 GB RAM cache + temp 0.0)</span>
+        <button class="btn copy-btn" data-copy="cmd1" type="button">Copy</button>
+      </div>
+      <pre id="cmd1">~/.local/bin/inkling-omlx start &amp;&amp; ~/.local/bin/inkling-omlx status</pre>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-top">
+        <span class="cmd-title">2. Launch Inkling 2 Mini in Pi or Paseo with --thinking off</span>
+        <button class="btn copy-btn" data-copy="cmd2" type="button">Copy</button>
+      </div>
+      <pre id="cmd2">pi --model inkling-local/inkling --thinking off
+paseo run --provider pi --model inkling-local/inkling --thinking off "Your coding task"</pre>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-top">
+        <span class="cmd-title">3. Direct HTTP curl check for fast Inkling coding without thinking tokens</span>
+        <button class="btn copy-btn" data-copy="cmd3" type="button">Copy</button>
+      </div>
+      <pre id="cmd3">curl http://127.0.0.1:18089/v1/chat/completions -H "Content-Type: application/json" -d '{"model":"inkling","temperature":0.0,"chat_template_kwargs":{"enable_thinking":false},"generation_opener":"content","messages":[{"role":"user","content":"Write a Python binary search."}]}'</pre>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-top">
+        <span class="cmd-title">4. Verify Ornith Splash 1.7.0-m1 deployment used by oMLX</span>
+        <button class="btn copy-btn" data-copy="cmd4" type="button">Copy</button>
+      </div>
+      <pre id="cmd4">~/.local/bin/splash-no-disk --version
+# oMLX GUI uses ~/.omlx/settings.json (splash_max_memory_gb=38) and ~/.omlx/model_settings.json (Qwen3.6 DFlash2 draft)</pre>
+    </div>
+  </section>
+
+  <footer>
+    Generated from verified logs in ledger.jsonl, raw/m1-v2-compare/, raw/qual-m1-v2/, and ornith/raw/aba-final/summary.json on Apple M1 Max.
+  </footer>
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var tip = document.getElementById("tooltip");
+
+  document.getElementById("themeToggle").addEventListener("click", function () {
+    var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    var activeInk = document.querySelector("#inklingTabs .btn.active");
+    var activeOrn = document.querySelector("#ornithTabs .btn.active");
+    if (activeInk) renderInklingChart(activeInk.getAttribute("data-tab"));
+    if (activeOrn) renderOrnithChart(activeOrn.getAttribute("data-tab"));
+  });
+
+  function showTip(evt, title, body) {
+    tip.innerHTML = "<strong>" + title + "</strong>" + body;
+    tip.style.opacity = "1";
+    moveTip(evt);
+  }
+  function moveTip(evt) {
+    var x = Math.min(window.innerWidth - 325, evt.clientX + 14);
+    var y = Math.min(window.innerHeight - 140, evt.clientY + 14);
+    tip.style.left = Math.max(8, x) + "px";
+    tip.style.top = Math.max(8, y) + "px";
+  }
+  function hideTip() {
+    tip.style.opacity = "0";
+  }
+
+  function svgEl(tag, attrs, text) {
+    var el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+    }
+    if (text !== undefined) el.textContent = text;
+    return el;
+  }
+
+  function getCss(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  var inklingData = {
+    hillclimb: {
+      note: "Pi decode throughput progression from stock GGUF through v1 M1-fast, incremental v2 kernel levers, and final 6-task A/B/A proof.",
+      max: 75,
+      unit: "tok/s",
+      series: [
+        { label: "GGUF Off", val: 18.74, color: "#64748b", info: "Stock GGUF UD-Q4_K_M, draft off (22.32 s wall)" },
+        { label: "Stock oQ4e Off", val: 23.83, color: "#64748b", info: "Stock oMLX oQ4e, draft off (18.27 s wall)" },
+        { label: "GGUF DSpark d=6", val: 27.94, color: "#94a3b8", info: "Stock GGUF + DSpark depth 6 (18.66 s wall)" },
+        { label: "Stock oQ4e d=6", val: 37.87, color: "#0ea5e9", info: "Stock oMLX oQ4e depth 6 baseline (15.09 s wall)" },
+        { label: "v1 Screen", val: 41.73, color: "#38bdf8", info: "hc-base-m1fast-a4 single screen (113.45 ms/cycle)" },
+        { label: "+verify_flush", val: 48.47, color: "#38bdf8", info: "hc-s2-vflush (97.19 ms/cycle)" },
+        { label: "v1 A/B/A", val: 49.45, color: "#818cf8", info: "v1 M1-fast + affine4 6-task median (12.96 s wall)" },
+        { label: "+m1_qmv_moe", val: 60.00, color: "#a78bfa", info: "hc-s3-qmvmoe custom Metal MoE (bb 79-83 ms/cycle)" },
+        { label: "+PR11 Stack", val: 66.41, color: "#2dd4bf", info: "hc-s5a-pr11 +bounded_cache/bf16_loop_ctrl/prefill_fast (71.35 ms/cycle)" },
+        { label: "v2 6-Task A/B/A", val: 64.21, color: "#34d399", info: "Promoted v2 clean champion (6/6 pass, 9.76 s wall, CI 1.295-1.307x vs v1)" }
+      ]
+    },
+    mix: {
+      note: "6-sample A/B/A across deterministic HTTP coding and prose prompts: v1 baseline vs v2 default vs v2 --no-think (generation_opener=content).",
+      max: 72,
+      unit: "tok/s",
+      groups: [
+        { name: "code_gen", bars: [
+          { leg: "v1 Baseline", val: 30.41, color: "#64748b", info: "TTFT 0.288 s (min 30.22, max 30.59)" },
+          { leg: "v2 Default", val: 42.50, color: "#38bdf8", info: "TTFT 0.208 s (min 42.41, max 42.52)" },
+          { leg: "v2 --no-think", val: 61.36, color: "#34d399", info: "TTFT 0.077 s (min 61.21, max 61.46)" }
+        ]},
+        { name: "code_edit (2.5K+)", bars: [
+          { leg: "v1 Baseline", val: 34.25, color: "#64748b", info: "Warm TTFT 6.651 s (recomputed suffix/prefix)" },
+          { leg: "v2 Default", val: 57.45, color: "#38bdf8", info: "Warm TTFT 0.212 s (31x faster TTFT)" },
+          { leg: "v2 --no-think", val: 64.98, color: "#34d399", info: "Warm TTFT 0.130 s (51x faster TTFT)" }
+        ]},
+        { name: "open_prose", bars: [
+          { leg: "v1 Baseline", val: 21.88, color: "#64748b", info: "TTFT 0.226 s" },
+          { leg: "v2 Default", val: 30.21, color: "#38bdf8", info: "TTFT 0.212 s (+38%)" },
+          { leg: "v2 --no-think", val: 27.77, color: "#a78bfa", info: "TTFT 0.091 s" }
+        ]}
+      ]
+    },
+    ttft: {
+      note: "Warm prompt responsiveness and long-context decode/memory improvements from ttft_fixes, bounded_cache, and 8 GB RAM hot prefix cache.",
+      max: 45,
+      unit: "",
+      groups: [
+        { name: "HTTP Edit TTFT (s)", bars: [
+          { leg: "v1", val: 6.651, color: "#f87171", info: "6.651 s warm edit TTFT" },
+          { leg: "v2 Default", val: 0.212, color: "#38bdf8", info: "0.212 s warm edit TTFT (31.4x faster)" },
+          { leg: "v2 --no-think", val: 0.130, color: "#34d399", info: "0.130 s warm edit TTFT (51.2x faster)" }
+        ]},
+        { name: "Live Pi 11.2K TTFT (s)", bars: [
+          { leg: "Cold Turn 1", val: 34.10, color: "#f87171", info: "34.10 s cold prefill (11,189 tokens)" },
+          { leg: "Warm Turn 2", val: 0.93, color: "#34d399", info: "0.93 s warm TTFT (36.7x faster via 8 GB hot cache)" }
+        ]},
+        { name: "32K Needle (tok/s)", bars: [
+          { leg: "v1 (32K)", val: 30.02, color: "#64748b", info: "32K peak GPU RAM 32.06 GB" },
+          { leg: "v2 (32K)", val: 43.33, color: "#34d399", info: "32K peak GPU RAM 22.75 GB (-29% RAM)" }
+        ]},
+        { name: "64K Needle (tok/s & GB)", bars: [
+          { leg: "v1 tok/s", val: 20.19, color: "#64748b", info: "Stock: 15.87 | v1: 20.19 tok/s (41.28 GB peak GPU)" },
+          { leg: "v2 tok/s", val: 37.15, color: "#34d399", info: "v2: 37.15 tok/s (+84% vs v1, 24.39 GB peak GPU)" },
+          { leg: "v1 GPU GB", val: 41.28, color: "#fbbf24", info: "v1 peak GPU memory 41.28 GB" },
+          { leg: "v2 GPU GB", val: 24.39, color: "#38bdf8", info: "v2 peak GPU memory 24.39 GB (-41%)" }
+        ]}
+      ]
+    }
+  };
+
+  var ornithData = {
+    speed: {
+      note: "Splash 1.7.0-m1 + Qwen3.6 draft (38G resident, --language-only) wins 4/5 workloads and 5-workload geomean (102.13 tok/s); oMLX FP16 leads pure open_prose (98.28 tok/s).",
+      max: 215,
+      groups: [
+        { name: "code_gen", bars: [
+          { leg: "B0a 20G Splash 1.4", val: 63.52, color: "#64748b", info: "83% experts in RAM, 17% SSD stream (776.5 ms TTFT)" },
+          { leg: "B0b 38G Splash 1.4", val: 92.02, color: "#94a3b8", info: "100% experts in RAM (233.3 ms TTFT)" },
+          { leg: "oMLX DFlash+QMV", val: 88.03, color: "#fbbf24", info: "b2i oMLX FP16 + DFlash2 + m1_qmv_moe (1-shot)" },
+          { leg: "oMLX FP16 (6-rd)", val: 97.58, color: "#38bdf8", info: "6-round median (range 97.23 to 98.03)" },
+          { leg: "Splash 1.7 (6-rd)", val: 103.69, color: "#34d399", info: "6-round median (CI 1.060x to 1.067x vs oMLX)" }
+        ]},
+        { name: "code_edit", bars: [
+          { leg: "B0a 20G Splash 1.4", val: 82.71, color: "#64748b", info: "83% experts resident" },
+          { leg: "B0b 38G Splash 1.4", val: 114.75, color: "#94a3b8", info: "38G resident Splash 1.4" },
+          { leg: "oMLX DFlash+QMV", val: 160.66, color: "#fbbf24", info: "b2i (+suffix hit 190.11 in b2j)" },
+          { leg: "oMLX FP16 (6-rd)", val: 93.97, color: "#38bdf8", info: "6-round median without draft" },
+          { leg: "Splash 1.7 (6-rd)", val: 196.41, color: "#34d399", info: "6-round median (2.090x vs oMLX, 12.5 tok/cycle)" }
+        ]},
+        { name: "open_prose", bars: [
+          { leg: "B0a 20G Splash 1.4", val: 47.96, color: "#64748b", info: "20G baseline" },
+          { leg: "B0b 38G Splash 1.4", val: 63.87, color: "#94a3b8", info: "38G Splash 1.4" },
+          { leg: "oMLX DFlash+QMV", val: 49.73, color: "#fbbf24", info: "Low draft acceptance slows verify path" },
+          { leg: "oMLX FP16 (6-rd)", val: 98.28, color: "#38bdf8", info: "Winner on prose (native 400 GB/s unspeculated)" },
+          { leg: "Splash 1.7 (6-rd)", val: 74.04, color: "#34d399", info: "6-round median (0.753x vs oMLX)" }
+        ]},
+        { name: "warm_pi", bars: [
+          { leg: "B0a 20G Splash 1.4", val: 67.08, color: "#64748b", info: "Warm TTFT 721 ms" },
+          { leg: "B0b 38G Splash 1.4", val: 90.67, color: "#94a3b8", info: "Warm TTFT 571 ms" },
+          { leg: "oMLX DFlash+QMV", val: 79.72, color: "#fbbf24", info: "Warm TTFT 706 ms (cold turn 114.34 tok/s)" },
+          { leg: "oMLX FP16 (6-rd)", val: 86.30, color: "#38bdf8", info: "Warm TTFT 648.8 ms" },
+          { leg: "Splash 1.7 (6-rd)", val: 97.50, color: "#34d399", info: "Warm TTFT 232.3 ms (1.130x vs oMLX)" }
+        ]},
+        { name: "needle_32k", bars: [
+          { leg: "B0a 20G Splash 1.4", val: 37.01, color: "#64748b", info: "32K dual needle retrieval (TTFT 50.32 s)" },
+          { leg: "B0b 38G Splash 1.4", val: 54.59, color: "#94a3b8", info: "32K dual needle retrieval (TTFT 49.16 s)" },
+          { leg: "oMLX FP16 (6-rd)", val: 67.20, color: "#38bdf8", info: "32K dual needle retrieval (TTFT 49.15 s)" },
+          { leg: "Splash 1.7 (6-rd)", val: 75.26, color: "#34d399", info: "32K dual needle retrieval (TTFT 48.33 s, 1.120x)" }
+        ]},
+        { name: "Geomean", bars: [
+          { leg: "B0a 20G Splash 1.4", val: 57.58, color: "#64748b", info: "5-workload geometric mean" },
+          { leg: "B0b 38G Splash 1.4", val: 80.26, color: "#94a3b8", info: "5-workload geometric mean (+39.4% from residency alone)" },
+          { leg: "oMLX FP16 (6-rd)", val: 87.82, color: "#38bdf8", info: "5-workload geometric mean" },
+          { leg: "Splash 1.7 (6-rd)", val: 102.13, color: "#34d399", info: "Winner: 1.77x over 20G baseline, 1.163x (CI 1.157-1.169) over oMLX" }
+        ]}
+      ]
+    },
+    ttft: {
+      note: "Splash 1.7.0-m1 also cuts warm follow-up TTFT by 3.1x over baseline (721 ms -> 232.3 ms) and 2.8x over native oMLX FP16 (648.8 ms).",
+      max: 800,
+      groups: [
+        { name: "code_gen Cold TTFT (ms)", bars: [
+          { leg: "B0a 20G", val: 776.5, color: "#64748b", info: "776.5 ms cold prefill (SSD expert reads)" },
+          { leg: "oMLX FP16 (6-rd)", val: 469.7, color: "#38bdf8", info: "469.7 ms median" },
+          { leg: "Splash 1.7 (6-rd)", val: 234.9, color: "#34d399", info: "234.9 ms median (2.0x faster)" }
+        ]},
+        { name: "warm_pi Warm TTFT (ms)", bars: [
+          { leg: "B0a 20G", val: 721.0, color: "#64748b", info: "721.0 ms warm TTFT" },
+          { leg: "B0b 38G", val: 571.0, color: "#94a3b8", info: "571.0 ms warm TTFT" },
+          { leg: "oMLX FP16 (6-rd)", val: 648.8, color: "#38bdf8", info: "648.8 ms warm TTFT" },
+          { leg: "Splash 1.7 (6-rd)", val: 232.3, color: "#34d399", info: "232.3 ms warm TTFT (3.1x faster than baseline)" }
+        ]},
+        { name: "open_prose Cold TTFT (ms)", bars: [
+          { leg: "B0a 20G", val: 501.2, color: "#64748b", info: "501.2 ms cold TTFT" },
+          { leg: "oMLX FP16 (6-rd)", val: 398.0, color: "#38bdf8", info: "398.0 ms cold TTFT" },
+          { leg: "Splash 1.7 (6-rd)", val: 216.1, color: "#34d399", info: "216.1 ms cold TTFT" }
+        ]}
+      ]
+    }
+  };
+
+  function drawSingleBarChart(svgId, cfg) {
+    var svg = document.getElementById(svgId);
+    svg.innerHTML = "";
+    var W = 920, H = 340, padL = 56, padR = 24, padT = 26, padB = 74;
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+    var maxV = cfg.max;
+    var textCol = getCss("--text"), mutedCol = getCss("--muted"), gridCol = getCss("--grid");
+
+    for (var g = 0; g <= 5; g++) {
+      var val = (maxV / 5) * g;
+      var y = padT + plotH - (val / maxV) * plotH;
+      svg.appendChild(svgEl("line", { x1: padL, y1: y, x2: W - padR, y2: y, stroke: gridCol, "stroke-width": 1 }));
+      var lbl = svgEl("text", { x: padL - 8, y: y + 4, "text-anchor": "end", fill: mutedCol, "font-size": 11, "font-family": "var(--mono)" }, Math.round(val));
+      svg.appendChild(lbl);
+    }
+
+    var n = cfg.series.length;
+    var slot = plotW / n;
+    var bw = Math.min(54, slot * 0.68);
+    cfg.series.forEach(function (d, i) {
+      var x = padL + i * slot + (slot - bw) / 2;
+      var bh = (d.val / maxV) * plotH;
+      var y = padT + plotH - bh;
+      var rect = svgEl("rect", {
+        x: x, y: y, width: bw, height: bh, rx: 6, fill: d.color, style: "cursor:pointer"
+      });
+      rect.addEventListener("mouseenter", function (e) { showTip(e, d.label + ": " + d.val + " " + cfg.unit, d.info); });
+      rect.addEventListener("mousemove", moveTip);
+      rect.addEventListener("mouseleave", hideTip);
+      svg.appendChild(rect);
+      svg.appendChild(svgEl("text", {
+        x: x + bw / 2, y: y - 6, "text-anchor": "middle", fill: textCol, "font-size": 11.5, "font-weight": 700, "font-family": "var(--mono)"
+      }, d.val.toFixed(2)));
+      svg.appendChild(svgEl("text", {
+        x: x + bw / 2, y: padT + plotH + 18, "text-anchor": "middle", fill: mutedCol, "font-size": 11, transform: "rotate(-18 " + (x + bw / 2) + " " + (padT + plotH + 18) + ")"
+      }, d.label));
+    });
+  }
+
+  function drawGroupedBarChart(svgId, cfg, H) {
+    var svg = document.getElementById(svgId);
+    svg.innerHTML = "";
+    var W = 920, padL = 56, padR = 24, padT = 36, padB = 64;
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+    var maxV = cfg.max;
+    var textCol = getCss("--text"), mutedCol = getCss("--muted"), gridCol = getCss("--grid");
+
+    var seenLegs = [];
+    cfg.groups.forEach(function (grp) {
+      grp.bars.forEach(function (b) {
+        if (!seenLegs.some(function (s) { return s.leg === b.leg; })) {
+          seenLegs.push({ leg: b.leg, color: b.color });
+        }
+      });
+    });
+
+    var lx = padL;
+    seenLegs.forEach(function (item) {
+      svg.appendChild(svgEl("rect", { x: lx, y: 8, width: 12, height: 12, rx: 3, fill: item.color }));
+      svg.appendChild(svgEl("text", { x: lx + 17, y: 18, fill: textCol, "font-size": 11.5, "font-weight": 600 }, item.leg));
+      lx += 28 + item.leg.length * 6.8;
+    });
+
+    for (var g = 0; g <= 5; g++) {
+      var val = (maxV / 5) * g;
+      var y = padT + plotH - (val / maxV) * plotH;
+      svg.appendChild(svgEl("line", { x1: padL, y1: y, x2: W - padR, y2: y, stroke: gridCol, "stroke-width": 1 }));
+      svg.appendChild(svgEl("text", { x: padL - 8, y: y + 4, "text-anchor": "end", fill: mutedCol, "font-size": 11, "font-family": "var(--mono)" }, Math.round(val)));
+    }
+
+    var ng = cfg.groups.length;
+    var gSlot = plotW / ng;
+    cfg.groups.forEach(function (grp, gi) {
+      var gx = padL + gi * gSlot;
+      var nb = grp.bars.length;
+      var innerW = gSlot * 0.80;
+      var startX = gx + (gSlot - innerW) / 2;
+      var bw = Math.min(34, (innerW - (nb - 1) * 5) / nb);
+      var totalBarsW = nb * bw + (nb - 1) * 5;
+      var bx0 = gx + (gSlot - totalBarsW) / 2;
+      grp.bars.forEach(function (b, bi) {
+        var x = bx0 + bi * (bw + 5);
+        var bh = (b.val / maxV) * plotH;
+        var y = padT + plotH - bh;
+        var rect = svgEl("rect", { x: x, y: y, width: bw, height: bh, rx: 4, fill: b.color, style: "cursor:pointer" });
+        rect.addEventListener("mouseenter", function (e) { showTip(e, grp.name + " | " + b.leg + ": " + b.val, b.info); });
+        rect.addEventListener("mousemove", moveTip);
+        rect.addEventListener("mouseleave", hideTip);
+        svg.appendChild(rect);
+        svg.appendChild(svgEl("text", {
+          x: x + bw / 2, y: y - 4, "text-anchor": "middle", fill: textCol, "font-size": 9.8, "font-weight": 700, "font-family": "var(--mono)"
+        }, b.val >= 100 ? Math.round(b.val) : (b.val < 1 ? b.val.toFixed(3) : b.val.toFixed(1))));
+      });
+      svg.appendChild(svgEl("text", {
+        x: gx + gSlot / 2, y: padT + plotH + 20, "text-anchor": "middle", fill: textCol, "font-size": 12, "font-weight": 700
+      }, grp.name));
+    });
+  }
+
+  function renderInklingChart(tab) {
+    document.getElementById("inklingNote").textContent = inklingData[tab].note;
+    if (tab === "hillclimb") drawSingleBarChart("inklingSvg", inklingData.hillclimb);
+    else drawGroupedBarChart("inklingSvg", inklingData[tab], 340);
+  }
+  function renderOrnithChart(tab) {
+    document.getElementById("ornithNote").textContent = ornithData[tab].note;
+    drawGroupedBarChart("ornithSvg", ornithData[tab], 360);
+  }
+
+  document.querySelectorAll("#inklingTabs .btn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll("#inklingTabs .btn").forEach(function (x) { x.classList.remove("active"); });
+      b.classList.add("active");
+      renderInklingChart(b.getAttribute("data-tab"));
+    });
+  });
+  document.querySelectorAll("#ornithTabs .btn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll("#ornithTabs .btn").forEach(function (x) { x.classList.remove("active"); });
+      b.classList.add("active");
+      renderOrnithChart(b.getAttribute("data-tab"));
+    });
+  });
+
+  var inklingWins = [
+    { name: "m1_qmv_moe (Custom 5-Stage Metal MoE Kernel)", gain: "+11.53 tok/s Pi (+1.49x BF16 MoE)", pct: 96, cls: "", desc: "Replaced scatter/gather sort overhead on M=1..16 with 3-pointer register diet, strict C==2 pair split, 0x64006400u half4 unpack, and DIRECT_M1 path. Cut 48-visit M=1 MoE from 11.87 ms to 7.96 ms." },
+    { name: "ttft_fixes + 8 GB RAM Hot Cache + opener=content", gain: "31x to 51x HTTP TTFT | 36.7x Live Pi TTFT", pct: 92, cls: "", desc: "Fixed tail prefix caching and generation_opener=content (--no-think). HTTP warm edit TTFT dropped 6.651 s -> 0.130 s; live 11.2K Pi warm TTFT dropped 34.10 s -> 0.93 s." },
+    { name: "PR Backports (bounded_cache + bf16_loop_ctrl + prefill_fast)", gain: "+7.43 tok/s Pi (+6.7 to 13.3 HTTP)", pct: 74, cls: "", desc: "Dropped main backbone cycle time ~10 ms across all workloads (81.66 ms -> 71.35 ms in Pi) and reduced 64K peak GPU RAM from 41.28 GB down to 24.39 GB." },
+    { name: "v1 Stack (m1_attn + affine4 + split_in_proj + skip_lm_head)", gain: "+11.58 tok/s vs Stock oQ4e d=6", pct: 68, cls: "", desc: "Banded sink attention (nsplits <= 64, cos=0.9999996), affine 4-bit expert format, and fused decode/greedy graph raised stock 37.87 to 49.45 tok/s." },
+    { name: "verify_flush + DSpark 2-bit / draft4", gain: "+6.74 tok/s + 1.38 s wall trim", pct: 52, cls: "", desc: "Removed per-layer stalls (-16 ms/cycle in s2) and cut speculative draft head cost cleanly to ~3 ms/cycle." }
+  ];
+  var ornithWins = [
+    { name: "Fix 20 GB Cap -> 38 GB + --expert-memory off", gain: "+28.5 tok/s code_gen | +32.0 code_edit", pct: 96, cls: "purple", desc: "Before this run, oMLX capped Splash at ~20 GB so 17% of routed experts streamed from SSD. Lifting to 38 GB with --expert-memory off keeps 100% of experts in unified RAM." },
+    { name: "Upgrade Splash 1.4.0-m1 -> Splash 1.7.0-m1", gain: "+81.7 tok/s code_edit (114.75 -> 196.41)", pct: 94, cls: "purple", desc: "Dynamic verify row budgeting and faster verify batching drove code_edit to 196.41 tok/s (12.5 tok/cycle) and warm TTFT down to 232.3 ms." },
+    { name: "--language-only Flag + Qwen3.6 Draft (4-0 over felkhayer)", gain: "+3.9 to 7.1 tok/s over felkhayer | faster load", pct: 66, cls: "purple", desc: "Skipping unused vision tower saves load latency and boosted every non-needle workload. In 2-repeat confirmation, incoai Qwen3.6-35B-A3B-DFlash2 swept felkhayer 4-0." },
+    { name: "Native oMLX FP16 + ornith_m1_overlay (b2i / b2b)", gain: "+20.2 tok/s DFlash geomean | 98.28 prose", pct: 76, cls: "purple", desc: "Fixing feed_forward.switch_mlp engaged m1_qmv_moe on Ornith (1.59x FP16 MoE microbench, 160.66 tok/s edit), while unspeculated oMLX FP16 hit 98.28 tok/s on pure open_prose." }
+  ];
+
+  function renderImpact(id, items) {
+    var box = document.getElementById(id);
+    box.innerHTML = items.map(function (it) {
+      return '<div class="impact-item">' +
+        '<div class="impact-row"><span>' + it.name + '</span><span class="gain">' + it.gain + '</span></div>' +
+        '<div class="bar-track"><div class="bar-fill ' + it.cls + '" style="width:' + it.pct + '%"></div></div>' +
+        '<div class="impact-desc">' + it.desc + '</div></div>';
+    }).join("");
+  }
+  renderImpact("inklingWins", inklingWins);
+  renderImpact("ornithWins", ornithWins);
+
+  var flowSvgs = {
+    loop: {
+      note: "Eight-stage optimization workflow: diagnose real bottlenecks first, validate each lever incrementally, qualify long-context stability, prove with interleaved A/B/A, and deploy isolated.",
+      html: '<svg class="flow-svg" viewBox="0 0 980 260">' +
+        '<defs><marker id="arr1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/></marker></defs>' +
+        '<rect x="14" y="28" width="210" height="82" rx="12" fill="rgba(56,189,248,0.12)" stroke="#38bdf8" stroke-width="1.5"/>' +
+        '<text x="119" y="54" text-anchor="middle" fill="#38bdf8" font-size="13" font-weight="700">1. Root-Cause Profiling</text>' +
+        '<text x="119" y="75" text-anchor="middle" fill="var(--text)" font-size="11.5">Idle GPU baseline, server.log</text>' +
+        '<text x="119" y="92" text-anchor="middle" fill="var(--text)" font-size="11.5">1 GB SSD spill / 20G Splash cap</text>' +
+        '<line x1="224" y1="69" x2="254" y2="69" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr1)"/>' +
+        '<rect x="260" y="28" width="210" height="82" rx="12" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="1.5"/>' +
+        '<text x="365" y="54" text-anchor="middle" fill="#a78bfa" font-size="13" font-weight="700">2. Research &amp; Hypotheses</text>' +
+        '<text x="365" y="75" text-anchor="middle" fill="var(--text)" font-size="11.5">X/Twitter, arXiv, GitHub, HF</text>' +
+        '<text x="365" y="92" text-anchor="middle" fill="var(--text)" font-size="11.5">Screen &amp; drop non-M1 ideas</text>' +
+        '<line x1="470" y1="69" x2="500" y2="69" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr1)"/>' +
+        '<rect x="506" y="28" width="210" height="82" rx="12" fill="rgba(52,211,153,0.12)" stroke="#34d399" stroke-width="1.5"/>' +
+        '<text x="611" y="54" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">3. Kernels &amp; Overlays</text>' +
+        '<text x="611" y="75" text-anchor="middle" fill="var(--text)" font-size="11.5">m1_qmv_moe Metal kernel</text>' +
+        '<text x="611" y="92" text-anchor="middle" fill="var(--text)" font-size="11.5">PR backports + Splash 1.7</text>' +
+        '<line x1="716" y1="69" x2="746" y2="69" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr1)"/>' +
+        '<rect x="752" y="28" width="210" height="82" rx="12" fill="rgba(251,191,36,0.12)" stroke="#fbbf24" stroke-width="1.5"/>' +
+        '<text x="857" y="54" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="700">4. 1-by-1 Hill-Climb</text>' +
+        '<text x="857" y="75" text-anchor="middle" fill="var(--text)" font-size="11.5">1 GPU job at a time (0% idle)</text>' +
+        '<text x="857" y="92" text-anchor="middle" fill="var(--text)" font-size="11.5">Drop fp8_kv &amp; suffix regressions</text>' +
+        '<path d="M 857 110 L 857 135 L 119 135 L 119 150" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr1)"/>' +
+        '<rect x="14" y="156" width="210" height="82" rx="12" fill="rgba(52,211,153,0.12)" stroke="#34d399" stroke-width="1.5"/>' +
+        '<text x="119" y="182" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">5. 32K &amp; 64K Qualification</text>' +
+        '<text x="119" y="203" text-anchor="middle" fill="var(--text)" font-size="11.5">6/6 Pi, dual needles, 12-turn soak</text>' +
+        '<text x="119" y="220" text-anchor="middle" fill="var(--text)" font-size="11.5">Pressure=normal, 0 MiB swap growth</text>' +
+        '<line x1="224" y1="197" x2="254" y2="197" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr1)"/>' +
+        '<rect x="260" y="156" width="210" height="82" rx="12" fill="rgba(56,189,248,0.12)" stroke="#38bdf8" stroke-width="1.5"/>' +
+        '<text x="365" y="182" text-anchor="middle" fill="#38bdf8" font-size="13" font-weight="700">6. 6-Round Interleaved A/B/A</text>' +
+        '<text x="365" y="203" text-anchor="middle" fill="var(--text)" font-size="11.5">Alternating legs cancel drift</text>' +
+        '<text x="365" y="220" text-anchor="middle" fill="var(--text)" font-size="11.5">95% bootstrap CIs (1.16x to 1.30x)</text>' +
+        '<line x1="470" y1="197" x2="500" y2="197" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr1)"/>' +
+        '<rect x="506" y="156" width="210" height="82" rx="12" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="1.5"/>' +
+        '<text x="611" y="182" text-anchor="middle" fill="#a78bfa" font-size="13" font-weight="700">7. Isolated Deployment</text>' +
+        '<text x="611" y="203" text-anchor="middle" fill="var(--text)" font-size="11.5">~/.local/bin/inkling-omlx + repo</text>' +
+        '<text x="611" y="220" text-anchor="middle" fill="var(--text)" font-size="11.5">~/.local/bin/splash-no-disk (38G)</text>' +
+        '<line x1="716" y1="197" x2="746" y2="197" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr1)"/>' +
+        '<rect x="752" y="156" width="210" height="82" rx="12" fill="rgba(52,211,153,0.16)" stroke="#34d399" stroke-width="1.5"/>' +
+        '<text x="857" y="182" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">8. Live Client Proof</text>' +
+        '<text x="857" y="203" text-anchor="middle" fill="var(--text)" font-size="11.5">HTTP Mix + Full-Ext Pi (0.93 s)</text>' +
+        '<text x="857" y="220" text-anchor="middle" fill="var(--text)" font-size="11.5">Paseo run + clean repo push</text>' +
+      '</svg>'
+    },
+    qmvmoe: {
+      note: "How m1_qmv_moe beats stock MLX gather_sort -> gather_qmm -> scatter_unsort on M=1..16 verify batches (37/37 parity, 1.49x Inkling BF16, 1.59x Ornith FP16).",
+      html: '<svg class="flow-svg" viewBox="0 0 980 250">' +
+        '<defs><marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="#34d399"/></marker></defs>' +
+        '<rect x="14" y="18" width="952" height="62" rx="10" fill="rgba(248,113,113,0.10)" stroke="#f87171" stroke-width="1.3"/>' +
+        '<text x="30" y="42" fill="#f87171" font-size="13" font-weight="700">Stock MLX Path (Bottleneck on M1 Max 24-Core GPU):</text>' +
+        '<text x="30" y="63" fill="var(--text)" font-size="12">gather_sort(indices) -&gt; 3D gather_qmm_rhs (repeats weight tiles across M=1..16 small rows) -&gt; scatter_unsort (extra memory traffic) [11.87 ms @ M=1]</text>' +
+        '<text x="30" y="108" fill="#34d399" font-size="13.5" font-weight="700">Custom m1_qmv_moe Pipeline (37/37 Numerical Parity, BF16 11.87 -&gt; 7.96 ms):</text>' +
+        '<rect x="14" y="122" width="175" height="98" rx="10" fill="rgba(56,189,248,0.12)" stroke="#38bdf8" stroke-width="1.5"/>' +
+        '<text x="101" y="146" text-anchor="middle" fill="#38bdf8" font-size="12.5" font-weight="700">Stage 1: Route &amp; Split</text>' +
+        '<text x="101" y="168" text-anchor="middle" fill="var(--text)" font-size="11">M=1? DIRECT_M1 3-kernel</text>' +
+        '<text x="101" y="185" text-anchor="middle" fill="var(--text)" font-size="11">M&gt;1: strict C==2 pair</text>' +
+        '<text x="101" y="202" text-anchor="middle" fill="var(--text)" font-size="11">n_b2 = cnt&gt;&gt;1, n_b1 = cnt&amp;1</text>' +
+        '<line x1="189" y1="171" x2="213" y2="171" stroke="#34d399" stroke-width="2" marker-end="url(#arr2)"/>' +
+        '<rect x="219" y="122" width="175" height="98" rx="10" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="1.5"/>' +
+        '<text x="306" y="146" text-anchor="middle" fill="#a78bfa" font-size="12.5" font-weight="700">Stage 2: Pointer Diet</text>' +
+        '<text x="306" y="168" text-anchor="middle" fill="var(--text)" font-size="11">3 base ptrs: w0, s0, b0</text>' +
+        '<text x="306" y="185" text-anchor="middle" fill="var(--text)" font-size="11">Alias view once outside</text>' +
+        '<text x="306" y="202" text-anchor="middle" fill="var(--text)" font-size="11">mx.compile (low reg spill)</text>' +
+        '<line x1="394" y1="171" x2="418" y2="171" stroke="#34d399" stroke-width="2" marker-end="url(#arr2)"/>' +
+        '<rect x="424" y="122" width="175" height="98" rx="10" fill="rgba(52,211,153,0.12)" stroke="#34d399" stroke-width="1.5"/>' +
+        '<text x="511" y="146" text-anchor="middle" fill="#34d399" font-size="12.5" font-weight="700">Stage 3: Gate+Up+SwiGLU</text>' +
+        '<text x="511" y="168" text-anchor="middle" fill="var(--text)" font-size="11">0x64006400u half4 unpack</text>' +
+        '<text x="511" y="185" text-anchor="middle" fill="var(--text)" font-size="11">Sequential x reuse across</text>' +
+        '<text x="511" y="202" text-anchor="middle" fill="var(--text)" font-size="11">2-row pairs + softcaps</text>' +
+        '<line x1="599" y1="171" x2="623" y2="171" stroke="#34d399" stroke-width="2" marker-end="url(#arr2)"/>' +
+        '<rect x="629" y="122" width="160" height="98" rx="10" fill="rgba(56,189,248,0.12)" stroke="#38bdf8" stroke-width="1.5"/>' +
+        '<text x="709" y="146" text-anchor="middle" fill="#38bdf8" font-size="12.5" font-weight="700">Stage 4: Down QMV</text>' +
+        '<text x="709" y="168" text-anchor="middle" fill="var(--text)" font-size="11">Pair + single buckets read</text>' +
+        '<text x="709" y="185" text-anchor="middle" fill="var(--text)" font-size="11">intermediate z1 cleanly</text>' +
+        '<text x="709" y="202" text-anchor="middle" fill="var(--text)" font-size="11">without temp buffers</text>' +
+        '<line x1="789" y1="171" x2="813" y2="171" stroke="#34d399" stroke-width="2" marker-end="url(#arr2)"/>' +
+        '<rect x="819" y="122" width="147" height="98" rx="10" fill="rgba(251,191,36,0.12)" stroke="#fbbf24" stroke-width="1.5"/>' +
+        '<text x="892" y="146" text-anchor="middle" fill="#fbbf24" font-size="12.5" font-weight="700">Stage 5: Combine</text>' +
+        '<text x="892" y="168" text-anchor="middle" fill="var(--text)" font-size="11">Weighted top-K sum +</text>' +
+        '<text x="892" y="185" text-anchor="middle" fill="var(--text)" font-size="11">shared expert gate</text>' +
+        '<text x="892" y="202" text-anchor="middle" fill="#34d399" font-size="11" font-weight="700">1.32x to 1.59x faster</text>' +
+      '</svg>'
+    },
+    deploy: {
+      note: "Clean process and config separation on this Mac: Inkling 2 Mini runs via dedicated ~/.local/bin/inkling-omlx (:18089), while oMLX GUI (:8000) routes Ornith-1.5-35B-A3B through splash-no-disk to Splash 1.7.0-m1 without touching other models or Pi/Repro baselines.",
+      html: '<svg class="flow-svg" viewBox="0 0 980 270">' +
+        '<defs><marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/></marker></defs>' +
+        '<rect x="14" y="18" width="180" height="95" rx="10" fill="rgba(56,189,248,0.12)" stroke="#38bdf8" stroke-width="1.5"/>' +
+        '<text x="104" y="48" text-anchor="middle" fill="#38bdf8" font-size="13" font-weight="700">Pi / Paseo / HTTP</text>' +
+        '<text x="104" y="70" text-anchor="middle" fill="var(--text)" font-size="11.5">inkling-local/inkling</text>' +
+        '<text x="104" y="88" text-anchor="middle" fill="var(--text)" font-size="11.5">Port 18089</text>' +
+        '<line x1="194" y1="65" x2="234" y2="65" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr3)"/>' +
+        '<rect x="240" y="18" width="290" height="95" rx="10" fill="rgba(52,211,153,0.12)" stroke="#34d399" stroke-width="1.5"/>' +
+        '<text x="385" y="44" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">~/.local/bin/inkling-omlx</text>' +
+        '<text x="385" y="66" text-anchor="middle" fill="var(--text)" font-size="11.5">oMLX 0.8.2 + 19-feature v2 M1-fast + m1_qmv_moe</text>' +
+        '<text x="385" y="84" text-anchor="middle" fill="var(--text)" font-size="11.5">--affine4 | --hot-cache-max-size 8GB | --default-temp 0.0</text>' +
+        '<text x="385" y="102" text-anchor="middle" fill="#34d399" font-size="11">Isolated state in work/inkling-omlx-live/</text>' +
+        '<line x1="530" y1="65" x2="570" y2="65" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr3)"/>' +
+        '<rect x="576" y="18" width="388" height="95" rx="10" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="1.5"/>' +
+        '<text x="770" y="44" text-anchor="middle" fill="#a78bfa" font-size="13" font-weight="700">Inkling 2 Mini (omlx-oq4, 6/6 Qual Passed)</text>' +
+        '<text x="770" y="66" text-anchor="middle" fill="var(--text)" font-size="11.5">Pi 64.21 tok/s | no-think edit 64.98 tok/s (0.130 s TTFT)</text>' +
+        '<text x="770" y="84" text-anchor="middle" fill="var(--text)" font-size="11.5">Live 11.2K Pi warm TTFT 0.93 s | 64K 37.15 tok/s @ 24.4 GB</text>' +
+        '<text x="770" y="102" text-anchor="middle" fill="var(--text)" font-size="11">outputs/inkling-pi &amp; work/repro-direct-provider untouched</text>' +
+
+        '<rect x="14" y="148" width="180" height="100" rx="10" fill="rgba(56,189,248,0.12)" stroke="#38bdf8" stroke-width="1.5"/>' +
+        '<text x="104" y="176" text-anchor="middle" fill="#38bdf8" font-size="13" font-weight="700">oMLX App / CLI</text>' +
+        '<text x="104" y="198" text-anchor="middle" fill="var(--text)" font-size="11.5">splash_max_memory_gb=38</text>' +
+        '<text x="104" y="216" text-anchor="middle" fill="var(--text)" font-size="11.5">Draft: Qwen3.6 DFlash2</text>' +
+        '<text x="104" y="234" text-anchor="middle" fill="var(--text)" font-size="11">Port 8000 (unchanged models safe)</text>' +
+        '<line x1="194" y1="198" x2="234" y2="198" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr3)"/>' +
+        '<rect x="240" y="148" width="290" height="100" rx="10" fill="rgba(251,191,36,0.12)" stroke="#fbbf24" stroke-width="1.5"/>' +
+        '<text x="385" y="174" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="700">~/.local/bin/splash-no-disk</text>' +
+        '<text x="385" y="196" text-anchor="middle" fill="var(--text)" font-size="11.5">Execs ~/.local/bin/splash-1.7.0-m1 (1.7.0-m1)</text>' +
+        '<text x="385" y="214" text-anchor="middle" fill="var(--text)" font-size="11.5">Adds --max-cache-disk 0 on serve; adds --expert-memory off</text>' +
+        '<text x="385" y="232" text-anchor="middle" fill="#34d399" font-size="11">+ --language-only ONLY when arg matches Ornith-1.5-35B-A3B</text>' +
+        '<line x1="530" y1="198" x2="570" y2="198" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr3)"/>' +
+        '<rect x="576" y="148" width="388" height="100" rx="10" fill="rgba(52,211,153,0.12)" stroke="#34d399" stroke-width="1.5"/>' +
+        '<text x="770" y="174" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">Ornith-1.5-35B-A3B (100% RAM Experts)</text>' +
+        '<text x="770" y="196" text-anchor="middle" fill="var(--text)" font-size="11.5">code_edit 196.41 | code_gen 103.69 | 32K needle 75.26 tok/s</text>' +
+        '<text x="770" y="214" text-anchor="middle" fill="var(--text)" font-size="11.5">Geomean 102.13 tok/s | Warm TTFT 232.3 ms | Swap delta 0.0</text>' +
+        '<text x="770" y="232" text-anchor="middle" fill="var(--text)" font-size="11">/opt/homebrew/bin/splash-m1 &amp; ~/.omlx/*.bak-hc-20261121 intact</text>' +
+      '</svg>'
+    }
+  };
+
+  function renderFlow(tab) {
+    document.getElementById("flowNote").textContent = flowSvgs[tab].note;
+    document.getElementById("flowContainer").innerHTML = flowSvgs[tab].html;
+  }
+
+  document.querySelectorAll("#flowTabs .btn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll("#flowTabs .btn").forEach(function (x) { x.classList.remove("active"); });
+      b.classList.add("active");
+      renderFlow(b.getAttribute("data-tab"));
+    });
+  });
+
+  var rows = [
+    { track: "inkling", src: "Inkling", name: "Promoted v2 Stack (19 features + affine4 + 8 GB cache)", status: "kept", metric: "64.21 tok/s Pi | 64.98 edit | 37.15 @ 64K", note: "6/6 A/B/A win (+30.0% over v1, +69.6% over stock); 24.39 GB GPU at 64K." },
+    { track: "inkling", src: "Inkling", name: "m1_qmv_moe (Metal dual-bucket MoE)", status: "kept", metric: "+11.53 tok/s screen | 1.49x BF16 / 1.59x FP16", note: "37/37 numerical parity passed; removes scatter/gather overhead on M=1..16." },
+    { track: "inkling", src: "Inkling", name: "PR11 Backports (bounded_cache, bf16_loop_ctrl, prefill_fast)", status: "kept", metric: "66.41 screen (-10 ms/cycle backbone)", note: "Removing bf16_loop_ctrl lost 10 ms/cycle across all tasks (66.41 -> 53.07)." },
+    { track: "inkling", src: "Inkling", name: "ttft_fixes + 8 GB RAM hot cache + opener=content", status: "kept", metric: "Warm edit TTFT 6.651 s -> 0.130 s (51x)", note: "Live Pi 11.2K warm TTFT collapsed 34.10 s -> 0.93 s in RAM." },
+    { track: "inkling", src: "Inkling", name: "fp8_kv_full (FP8 E4M3 KV cache)", status: "drop", metric: "48.93 code_gen, yet 5/6 Pi turn 1 empty", note: "Dropped from v2 after failing reopened Pi turn-1 strict parity check." },
+    { track: "inkling", src: "Inkling", name: "suffix_policy (OMLX_MTP_DRAFT_POLICY=1)", status: "drop", metric: "code_gen 48.93 -> 36.34 (-12.59 tok/s)", note: "Plain d0=44 fallback cycles severely regressed coding generation speed." },
+    { track: "inkling", src: "Inkling", name: "oQ3e (3-bit experts), top6, margin30, oQ2.5e, FP16 experts", status: "drop", metric: "oQ3e 5/6 Pi parity; top6/FP16 incorrect", note: "All rejected by strict Pi behavioral or numerical gates." },
+    { track: "ornith", src: "Ornith", name: "Splash 1.7.0-m1 + Qwen3.6 draft + 38G + --language-only", status: "kept", metric: "102.13 geomean | 196.41 code_edit | 232 ms TTFT", note: "6/6 A/B/A winner; 1.77x over 20G baseline and 1.163x over oMLX FP16." },
+    { track: "ornith", src: "Ornith", name: "Splash 1.4.0-m1 38G + --expert-memory off (B0b vs B0a)", status: "kept", metric: "Geomean 57.58 -> 80.26 tok/s", note: "Fixing the 20 GB limit eliminated 17% SSD routed-expert streaming." },
+    { track: "ornith", src: "Ornith", name: "Draft Shootout: incoai/Qwen3.6 vs felkhayer vs jzinno (Splash)", status: "kept", metric: "Qwen3.6 beat felkhayer 4-0 (106.6 vs 100.6)", note: "jzinno rejected in Splash due to sliding_window 4096 vs 2048 mismatch." },
+    { track: "ornith", src: "Ornith", name: "oMLX 0.8.2 + FP16 activations (no draft, B2b / B2-best-all)", status: "kept", metric: "87.82 6-rd geomean | 98.28 open_prose", note: "Fastest engine on low-accept prose; selected as runner-up control arm." },
+    { track: "ornith", src: "Ornith", name: "oMLX DFlash2 + ornith_m1_overlay (m1_qmv_moe MIN_ROWS=2)", status: "info", metric: "160.66 code_edit (86.53 4-task geomean)", note: "Fixed switch_mlp unwrapping bug; huge gain over stock DFlash (70.57 -> 86.53)." },
+    { track: "ornith", src: "Ornith", name: "Splash --state-format bf16 (B1e) & oMLX suffix_policy (B2j)", status: "drop", metric: "bf16 geomean 102.13 < 103.81; suffix 85.36 < 86.53", note: "Dropped to preserve FP32 GDN state accuracy and avoid code_gen regression." },
+    { track: "community", src: "X / GitHub", name: "ShinMegamiBoson/lookatmyquant (M1 sg=16 shim)", status: "drop", metric: "26.06 code / 22.92 edit / 16.01 prose", note: "Half the speed of oMLX on M1 Max, no OpenAI HTTP server; M5 mpp skipped." },
+    { track: "community", src: "X / GitHub", name: "sybil-solutions/inference-optimisation-skill", status: "kept", metric: "Kept depth 6, split-K, fused decode", note: "Rejected depth 3 and markov_topk=256 shortlist after M1 validation." },
+    { track: "community", src: "X / GitHub", name: "realugbun/llama.cpp, loom-fun, exo-explore/exo", status: "drop", metric: "CUDA/ROCm/Vulkan only or card-only on exo", note: "Ported 4-bit draft/attn tricks slowed M1 Max; kept zero external PR bloat." }
+  ];
+
+  var currentFilter = "all";
+  function renderTable() {
+    var q = (document.getElementById("expSearch").value || "").trim().toLowerCase();
+    var filtered = rows.filter(function (r) {
+      if (currentFilter === "kept" && r.status !== "kept") return false;
+      if (currentFilter === "drop" && r.status !== "drop") return false;
+      if (currentFilter === "inkling" && r.track !== "inkling") return false;
+      if (currentFilter === "ornith" && r.track !== "ornith") return false;
+      if (currentFilter === "community" && r.track !== "community") return false;
+      if (q && (r.name + " " + r.src + " " + r.metric + " " + r.note).toLowerCase().indexOf(q) === -1) return false;
+      return true;
+    });
+    document.getElementById("expBody").innerHTML = filtered.map(function (r) {
+      var pillCls = r.status === "kept" ? "kept" : (r.status === "drop" ? "drop" : "info");
+      var pillTxt = r.status === "kept" ? "KEPT" : (r.status === "drop" ? "DROPPED" : "NOTE");
+      return '<tr><td><span class="badge">' + r.src + '</span></td>' +
+        '<td><strong>' + r.name + '</strong></td>' +
+        '<td><span class="pill ' + pillCls + '">' + pillTxt + '</span></td>' +
+        '<td class="num">' + r.metric + '</td>' +
+        '<td>' + r.note + '</td></tr>';
+    }).join("");
+  }
+
+  document.querySelectorAll("#expFilters .btn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll("#expFilters .btn").forEach(function (x) { x.classList.remove("active"); });
+      b.classList.add("active");
+      currentFilter = b.getAttribute("data-filter");
+      renderTable();
+    });
+  });
+  document.getElementById("expSearch").addEventListener("input", renderTable);
+
+  document.querySelectorAll(".copy-btn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var pre = document.getElementById(b.getAttribute("data-copy"));
+      if (navigator.clipboard && pre) {
+        navigator.clipboard.writeText(pre.textContent).then(function () {
+          var prev = b.textContent;
+          b.textContent = "Copied";
+          setTimeout(function () { b.textContent = prev; }, 1200);
+        });
+      }
+    });
+  });
+
+  renderInklingChart("hillclimb");
+  renderOrnithChart("speed");
+  renderFlow("loop");
+  renderTable();
+})();
+</script>
+</body>
+</html>

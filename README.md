@@ -4,7 +4,7 @@ This repository holds benchmarks, Metal kernels, and setup scripts for Inkling 2
 
 The main goal is fast and correct coding agent turns in Pi. The promoted M1 Max v2 stack reaches 64.21 tokens per second in controlled Pi A/B/A tests, up from 49.09 to 49.45 tokens per second on v1 and 37.87 tokens per second on stock oMLX 0.8.2. On direct HTTP coding runs without thinking tokens, it reaches 61.36 tokens per second on code generation and 64.98 tokens per second on code edits. Both humans and coding agents can repeat every experiment here.
 
-Start with the [benchmark findings](FINDINGS.md), the [steps to reproduce](REPRODUCE.md), and the [candidate list](CANDIDATES.md). The full experiment log is in [PLAN.md](PLAN.md). Hardware math is in [THEORY.md](THEORY.md). Boundary rules are in [PROTOCOL.md](PROTOCOL.md).
+Start with the [interactive HTML dashboard](report.html), the [Inkling benchmark findings](FINDINGS.md), the [Ornith-1.5-35B-A3B findings](ornith/FINDINGS.md), the [steps to reproduce](REPRODUCE.md), and the [candidate list](CANDIDATES.md). The full experiment log is in [PLAN.md](PLAN.md). Hardware math is in [THEORY.md](THEORY.md). Boundary rules are in [PROTOCOL.md](PROTOCOL.md).
 
 ## What sits in this repository
 
